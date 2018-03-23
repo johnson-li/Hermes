@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "proto.hermes";
+option java_outer_classname = "ServicesProto";
+option objc_class_prefix = "HLW";
+
+package hermes;
+import "base.proto";
+
+service RandomGenerator {
+    rpc Generate (Empty) returns (stream RandomNumber) {
+    }
+}
+
+message RandomNumber {
+    int64 value = 1;
+}

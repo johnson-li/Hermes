@@ -1,0 +1,93 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "proto.hermes";
+option java_outer_classname = "ParticipantProto";
+option objc_class_prefix = "HLW";
+
+package hermes;
+import "base.proto";
+
+service Registration {
+    rpc Register (RegistrationRequest) returns (RegistrationResult) {
+    }
+}
+
+message RegistrationResult {
+    int64 participantId = 1;
+    Status status = 2;
+}
+
+message RegistrationRequest {
+    Participant participant = 1;
+}
+
+message Participant {
+    int64 id = 1;
+    repeated Role roles = 2;
+    repeated Service services = 3;
+    NetAddress address = 4;
+}
+
+message NetAddress {
+    string ip = 1;
+    int32 port = 2;
+}
+
+message Role {
+    string role = 1;
+}
+
+service Heartbeat {
+    rpc Beat (HeartbeatRequest) returns (HeartbeatResponse) {
+    }
+}
+
+message HeartbeatRequest {
+    int64 participantId = 1;
+}
+
+message HeartbeatResponse {
+    Status status = 1;
+}
+
+
+service Echo {
+    rpc Echo (EchoRequest) returns (stream EchoResponse) {
+    }
+}
+
+message EchoRequest {
+    string msg = 1;
+}
+
+message EchoResponse {
+    string msg = 1;
+}
+
+message Service {
+    string name = 1;
+    Protocol protocol = 2;
+}
+
+enum Protocol {
+    GRPC = 0;
+}
+
+service Webrtc {
+    rpc Webrtc (WebrtcInfo) returns (WebrtcResponse) {
+    }
+}
+
+message WebrtcInfo {
+    WebrtcType type = 1;
+}
+
+enum WebrtcType {
+    SENDER = 0;
+    RECEIVER = 1;
+}
+
+message WebrtcResponse {
+    Status status = 1;
+}

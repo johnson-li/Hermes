@@ -1,0 +1,74 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "proto.hermes";
+option java_outer_classname = "JobProto";
+option objc_class_prefix = "HLW";
+
+package hermes;
+import "base.proto";
+import "participant.proto";
+
+service JobManager {
+    rpc StartJob (Job) returns (StartJobResult) {
+    }
+
+    rpc InitJob (Job) returns (InitJobResult) {
+    }
+
+    rpc FinishJob (Job) returns (FinishJobResult) {
+    }
+}
+
+message Job {
+    int64 id = 1;
+    string name = 2;
+}
+
+message InitJobResult {
+    int64 id = 1;
+    Status status = 2;
+}
+
+message StartJobResult {
+    Status status = 1;
+}
+
+message FinishJobResult {
+    Status status = 1;
+}
+
+service TaskController {
+    rpc Assign (Task) returns (AssignResult) {
+    }
+
+    rpc Stop (Task) returns (StopResult) {
+    }
+
+    rpc Start (Task) returns (StartResult) {
+    }
+}
+
+message Task {
+    Participant self = 1;
+    repeated Participant ingresses = 2;
+    Participant egress = 3;
+    Operation operation = 4;
+    Service service = 5;
+}
+
+message Operation {
+    string operation = 1;
+}
+
+message AssignResult {
+    Status status = 1;
+}
+
+message StopResult {
+    Status status = 1;
+}
+
+message StartResult {
+    Status status = 1;
+}
