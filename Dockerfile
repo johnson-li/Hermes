@@ -1,7 +1,6 @@
 FROM ubuntu:16.04
 RUN apt-get update
 RUN apt-get install -y zsh wget curl git software-properties-common vim iputils-ping
-RUN wget https://raw.githubusercontent.com/robbyrussell/oh-my-zsh/master/tools/install.sh -qO - | zsh || true
 
 WORKDIR /hermes
 COPY bin/webrtc bin/webrtc
