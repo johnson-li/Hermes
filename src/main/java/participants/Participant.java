@@ -51,6 +51,7 @@ public class Participant extends Context {
         ServerBuilder builder = ServerBuilder.forPort(port).useTransportSecurity(ssc.certificate(), ssc.privateKey());
         for (Role role : roles) {
             for (BindableService service : role.getServices()) {
+                logger.info("Role: " + role.getRoleName());
                 builder.addService(service);
             }
         }

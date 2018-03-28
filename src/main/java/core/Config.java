@@ -1,12 +1,14 @@
 package core;
 
+import java.net.Inet4Address;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
 public class Config {
 
-    public static String COORDINATOR_IP = "127.0.0.1";
+    public static String COORDINATOR_IP = "coordinator.ip";
     public static int COORDINATOR_PORT = 5555;
     public static List<String> ROLES = new ArrayList<>();
     public static String HOST = "127.0.0.1";
@@ -15,6 +17,11 @@ public class Config {
     public static String WEBRTC_PATH = PROJECT_PATH + "/bin/webrtc";
 
     static {
+        try {
+            HOST = Inet4Address.getLocalHost().getHostAddress();
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
         initConfig();
     }
 
