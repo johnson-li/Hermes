@@ -68,6 +68,7 @@ public class Participant extends Context {
     }
 
     public RegistrationResult register() {
+        logger.info(String.format("Register to %s:%s", Config.COORDINATOR_IP, Config.COORDINATOR_PORT));
         try {
             channel = ChannelUtil.getInstance().newClientChannel(Config.COORDINATOR_IP, Config.COORDINATOR_PORT);
             roles.forEach(role -> role.setChannel(channel));

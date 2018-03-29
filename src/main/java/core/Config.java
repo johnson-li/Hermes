@@ -8,7 +8,7 @@ import java.util.List;
 
 public class Config {
 
-    public static String COORDINATOR_IP = "coordinator.ip";
+    public static String COORDINATOR_IP = "hermes-coordinator";
     public static int COORDINATOR_PORT = 5555;
     public static List<String> ROLES = new ArrayList<>();
     public static String HOST = "127.0.0.1";

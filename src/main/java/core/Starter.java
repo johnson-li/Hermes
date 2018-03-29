@@ -3,6 +3,7 @@ package core;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import participants.Participant;
+import proto.hermes.Status;
 import roles.Client;
 import roles.Consumer;
 import roles.Coordinator;
@@ -31,9 +32,11 @@ public class Starter {
             }
         }
         participant.start();
-//        if (participant.register().getStatus() != Status.SUCCESS) {
-//            throw new IllegalStateException("Fail to register");
-//        }
+        if (participant.getRoles().stream().anyMatch(role -> !(role instanceof Coordinator))) {
+            if (participant.register().getStatus() != Status.SUCCESS) {
+                throw new IllegalStateException("Fail to register");
+            }
+        }
         participant.await();
     }
 }
