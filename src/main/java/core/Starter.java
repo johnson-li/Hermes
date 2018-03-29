@@ -9,6 +9,8 @@ import roles.Consumer;
 import roles.Coordinator;
 import roles.Producer;
 
+import java.util.Optional;
+
 public class Starter {
     static Logger logger = LoggerFactory.getLogger(Starter.class);
 
@@ -32,11 +34,28 @@ public class Starter {
             }
         }
         participant.start();
+
+        // Register to the coordinator
         if (participant.getRoles().stream().anyMatch(role -> !(role instanceof Coordinator))) {
             if (participant.register().getStatus() != Status.SUCCESS) {
                 throw new IllegalStateException("Fail to register");
             }
         }
+
+        // Start the requests
+        Optional<Client> clientOptional = participant.delegate(Client.class);
+        clientOptional.ifPresent(client -> {
+            client.initJob();
+            client.startJob();
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                logger.error(e.getMessage(), e);
+            }
+
+            client.finishJob();
+        });
         participant.await();
     }
 }
