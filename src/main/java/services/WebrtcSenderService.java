@@ -1,5 +1,6 @@
 package services;
 
+import core.Config;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,7 +20,7 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
     public void start() {
         Runtime runtime = Runtime.getRuntime();
         try {
-            Process process = runtime.exec("");
+            Process process = runtime.exec("", new String[]{"coordinator_ip=" + Config.COORDINATOR_IP});
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }

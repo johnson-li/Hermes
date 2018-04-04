@@ -16,3 +16,31 @@ service RandomGenerator {
 message RandomNumber {
     int64 value = 1;
 }
+
+service WebrtcServer {
+    rpc StartServer (Empty) returns (WebrtcServerStartResult) {
+    }
+}
+
+message WebrtcServerStartResult {
+    Status status = 1;
+}
+
+
+service Webrtc {
+    rpc Webrtc (WebrtcInfo) returns (WebrtcResponse) {
+    }
+}
+
+message WebrtcInfo {
+    WebrtcType type = 1;
+}
+
+enum WebrtcType {
+    SENDER = 0;
+    RECEIVER = 1;
+}
+
+message WebrtcResponse {
+    Status status = 1;
+}

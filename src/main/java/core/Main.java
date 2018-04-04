@@ -55,11 +55,11 @@ public class Main {
         client.delegate(Client.class).get().initJob();
         client.delegate(Client.class).get().startJob();
 
-        Thread.sleep(100000);
+        Thread.sleep(5000);
 
         client.delegate(Client.class).get().finishJob();
 
-        Thread.sleep(3000);
+        Thread.sleep(1000);
         ChannelUtil.getInstance().terminate();
     }
 }

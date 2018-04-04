@@ -11,6 +11,7 @@ import proto.hermes.*;
 import services.HeartbeatService;
 import services.JobService;
 import services.RegistrationService;
+import services.WebrtcServer;
 import utils.ChannelUtil;
 
 import javax.net.ssl.SSLException;
@@ -37,6 +38,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         addServices(new RegistrationService(this));
         addServices(new JobService(this));
         addServices(new HeartbeatService(this));
+        addServices(new WebrtcServer());
     }
 
     @Override

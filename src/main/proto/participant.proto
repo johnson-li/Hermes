@@ -73,21 +73,3 @@ message Service {
 enum Protocol {
     GRPC = 0;
 }
-
-service Webrtc {
-    rpc Webrtc (WebrtcInfo) returns (WebrtcResponse) {
-    }
-}
-
-message WebrtcInfo {
-    WebrtcType type = 1;
-}
-
-enum WebrtcType {
-    SENDER = 0;
-    RECEIVER = 1;
-}
-
-message WebrtcResponse {
-    Status status = 1;
-}

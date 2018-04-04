@@ -44,7 +44,6 @@ public class EchoService extends EchoGrpc.EchoImplBase implements Service {
             @Override
             public void onCompleted() {
                 if (observer != null) {
-//                    observer.onCompleted();
                     observer = null;
                 }
             }
