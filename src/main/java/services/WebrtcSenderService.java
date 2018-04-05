@@ -12,7 +12,9 @@ import proto.hermes.WebrtcResponse;
 import utils.ProcessReader;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Service {
@@ -45,17 +47,20 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
 
     @Override
     public void start() {
-        Runtime runtime = Runtime.getRuntime();
+        List<String> commands = new ArrayList<>();
+        commands.add("/hermes/bin/webrtc/peerconnection_server_terminal");
         Map<String, String> env = new HashMap<>();
         env.put("coordinator_ip", Config.COORDINATOR_IP);
         env.put("name", String.valueOf(id));
         env.put("peer", remotePeer);
         env.put("autocall", "true");
-        env.put("sendonly", "false");
-        String[] envArray = env.entrySet().stream().map(entry ->
-                String.format("%s=%s", entry.getKey(), entry.getValue())).toArray(String[]::new);
+        env.put("sendonly", String.valueOf(sendOnly).toLowerCase());
+        env.forEach((key, val) -> {
+            commands.add("--" + key);
+            commands.add(val);
+        });
         try {
-            process = runtime.exec("/hermes/script/webrtc-start-client.sh", envArray);
+            process = new ProcessBuilder(commands).start();
             reader = new ProcessReader(process);
             reader.start();
         } catch (IOException e) {

@@ -26,7 +26,7 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
             return;
         }
         try {
-            String cmd = "/hermes/script/webrtc-start-server.sh";
+            String cmd = "/hermes/bin/webrtc/peerconnection_server";
             process = Runtime.getRuntime().exec(cmd);
             reader = new ProcessReader(process);
             reader.start();
