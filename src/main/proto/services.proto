@@ -28,7 +28,7 @@ message WebrtcServerStartResult {
 
 
 service Webrtc {
-    rpc Webrtc (WebrtcInfo) returns (WebrtcResponse) {
+    rpc Webrtc (WebrtcInfo) returns (stream WebrtcResponse) {
     }
 }
 

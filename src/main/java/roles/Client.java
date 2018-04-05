@@ -2,13 +2,12 @@ package roles;
 
 import core.Context;
 import jobs.EchoJob;
+import jobs.VideoJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proto.hermes.*;
-import services.PrintService;
+import services.*;
 import services.Service;
-import services.TaskController;
-import services.TaskListener;
 
 public class Client extends Role implements TaskListener {
     private static Logger logger = LoggerFactory.getLogger(Client.class);
@@ -22,13 +21,14 @@ public class Client extends Role implements TaskListener {
     public void init() {
         addServices(new TaskController(this));
         addServices(new PrintService());
+        addServices(new WebrtcClientService());
         super.init();
     }
 
     public void initJob() {
         JobManagerGrpc.JobManagerBlockingStub stub = JobManagerGrpc.newBlockingStub(getChannel());
         InitJobResult result =
-                stub.initJob(Job.newBuilder().setName(jobs.Job.getJobName(EchoJob.class)).build());
+                stub.initJob(Job.newBuilder().setName(jobs.Job.getJobName(VideoJob.class)).build());
         jobId = result.getId();
     }
 
@@ -40,15 +40,5 @@ public class Client extends Role implements TaskListener {
     public void finishJob() {
         JobManagerGrpc.JobManagerBlockingStub stub = JobManagerGrpc.newBlockingStub(getChannel());
         FinishJobResult result = stub.finishJob(Job.newBuilder().setId(jobId).build());
-    }
-
-    @Override
-    public void onStopped(Task task) {
-
-    }
-
-    @Override
-    public void onStarted(Task task) {
-
     }
 }

@@ -145,14 +145,4 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     public void onHeartbeat(long participantId) {
 
     }
-
-    @Override
-    public void onStopped(Task task) {
-
-    }
-
-    @Override
-    public void onStarted(Task task) {
-
-    }
 }

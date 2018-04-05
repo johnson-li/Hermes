@@ -31,7 +31,7 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
             reader = new ProcessReader(process);
             reader.start();
         } catch (IOException e) {
-            logger.error(e.getMessage(), e);
+            logger.error(e.getMessage());
         }
     }
 

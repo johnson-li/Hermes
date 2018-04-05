@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 public class Participant extends Context {
     private static Logger logger = LoggerFactory.getLogger(Participant.class);
-    private final long id;
     private ManagedChannel channel;
     private Set<Role> roles = new HashSet<>();
     private int port;
@@ -31,9 +30,9 @@ public class Participant extends Context {
     private Server server;
 
     public Participant(String host, int port, long id) {
+        super(id);
         this.host = host;
         this.port = port;
-        this.id = id;
     }
 
     public Participant(String host, int port) {

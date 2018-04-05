@@ -16,7 +16,7 @@ import javax.net.ssl.SSLException;
 import java.util.*;
 
 public abstract class Role implements TaskListener {
-    private final Context context;
+    final Context context;
     private Logger logger = LoggerFactory.getLogger(getClass());
     private List<Service> services = new ArrayList<>();
     private ManagedChannel channel;
@@ -52,6 +52,17 @@ public abstract class Role implements TaskListener {
 
     void addServices(Service... services) {
         this.services.addAll(Arrays.asList(services));
+    }
+
+    @Override
+    public void onStopped(Task task) {
+        services.forEach(Service::stop);
+    }
+
+    @Override
+    public void onStarted(Task task) throws ServiceNotFoundException {
+        String service = task.getService().getName();
+        getService(service).orElseThrow(() -> new ServiceNotFoundException(service)).start();
     }
 
     @Override

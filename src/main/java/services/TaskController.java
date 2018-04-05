@@ -1,6 +1,7 @@
 package services;
 
 import com.google.protobuf.TextFormat;
+import exception.ServiceNotFoundException;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
@@ -26,7 +27,11 @@ public class TaskController extends TaskControllerGrpc.TaskControllerImplBase im
     @Override
     public void start(Task request, StreamObserver<StartResult> responseObserver) {
         logger.info("Task started: " + TextFormat.shortDebugString(request));
-        listener.onStarted(request);
+        try {
+            listener.onStarted(request);
+        } catch (ServiceNotFoundException e) {
+            logger.error(e.getMessage(), e);
+        }
         responseObserver.onNext(StartResult.newBuilder().setStatus(Status.SUCCESS).build());
         responseObserver.onCompleted();
     }

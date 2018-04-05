@@ -14,7 +14,7 @@ public interface Service extends BindableService {
     void init();
 
     /**
-     * Start the service, usually make a RPC call to the remote.
+     * Start the service, usually make a RPC call to the remotePeer.
      */
     void start();
 

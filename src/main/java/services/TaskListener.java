@@ -1,5 +1,6 @@
 package services;
 
+import exception.ServiceNotFoundException;
 import proto.hermes.Task;
 
 public interface TaskListener {
@@ -7,5 +8,5 @@ public interface TaskListener {
 
     void onStopped(Task task);
 
-    void onStarted(Task task);
+    void onStarted(Task task) throws ServiceNotFoundException;
 }
