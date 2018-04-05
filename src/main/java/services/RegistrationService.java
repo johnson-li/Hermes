@@ -33,6 +33,11 @@ public class RegistrationService extends RegistrationGrpc.RegistrationImplBase i
     }
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
     public void start() {
 
     }

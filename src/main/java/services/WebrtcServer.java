@@ -9,9 +9,9 @@ import utils.ProcessReader;
 import java.io.IOException;
 
 public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implements Service {
-    static Logger logger = LoggerFactory.getLogger(WebrtcServer.class);
-    Process process;
-    ProcessReader reader;
+    private static Logger logger = LoggerFactory.getLogger(WebrtcServer.class);
+    private Process process;
+    private ProcessReader reader;
 
     @Override
     public void listen(ManagedChannel channel) {
@@ -19,7 +19,12 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
     }
 
     @Override
-    public void start() {
+    public void init() {
+        // Disable webrtc in the development environment
+        if (System.getProperty("os.name").equals("Mac OS X")) {
+            logger.warn("Disable webrtc in the development environment");
+            return;
+        }
         try {
             String cmd = "/hermes/script/webrtc-start-server.sh";
             process = Runtime.getRuntime().exec(cmd);
@@ -28,6 +33,10 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
         } catch (IOException e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    @Override
+    public void start() {
     }
 
     @Override

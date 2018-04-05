@@ -27,6 +27,11 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
     }
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
     public void stop() {
 
     }

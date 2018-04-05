@@ -26,6 +26,11 @@ public class HeartbeatService extends HeartbeatGrpc.HeartbeatImplBase implements
     }
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
     public void start() {
 
     }

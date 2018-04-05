@@ -2,7 +2,6 @@ package participants;
 
 import core.Config;
 import core.Context;
-import io.grpc.BindableService;
 import io.grpc.ManagedChannel;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
@@ -49,11 +48,9 @@ public class Participant extends Context {
     public void start() throws IOException, CertificateException {
         SelfSignedCertificate ssc = new SelfSignedCertificate();
         ServerBuilder builder = ServerBuilder.forPort(port).useTransportSecurity(ssc.certificate(), ssc.privateKey());
+        logger.info("Roles: " + String.join(", ", roles.stream().map(Role::getRoleName).collect(Collectors.toList())));
         for (Role role : roles) {
-            logger.info("Role: " + role.getRoleName());
-            for (BindableService service : role.getServices()) {
-                builder.addService(service);
-            }
+            role.getServices().stream().filter(service -> service.bindService() != null).forEach(builder::addService);
         }
         server = builder.build();
         server.start();

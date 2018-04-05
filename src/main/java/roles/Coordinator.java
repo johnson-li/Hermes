@@ -2,16 +2,13 @@ package roles;
 
 import com.google.protobuf.TextFormat;
 import core.Context;
-import io.grpc.BindableService;
 import io.grpc.ManagedChannel;
 import jobs.JobManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proto.hermes.*;
-import services.HeartbeatService;
-import services.JobService;
-import services.RegistrationService;
-import services.WebrtcServer;
+import services.*;
+import services.Service;
 import utils.ChannelUtil;
 
 import javax.net.ssl.SSLException;
@@ -28,17 +25,17 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     private Map<String, Integer> participantIndexes = new HashMap<>();
     private Map<Long, jobs.Job> jobs = new HashMap<>();
 
-    public Coordinator(Context context, BindableService... services) {
+    public Coordinator(Context context, Service... services) {
         super(context, services);
     }
 
     @Override
     public void init() {
-        super.init();
         addServices(new RegistrationService(this));
         addServices(new JobService(this));
         addServices(new HeartbeatService(this));
         addServices(new WebrtcServer());
+        super.init();
     }
 
     @Override
@@ -52,6 +49,11 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         List<Task> tasks = workingJob.getTasks();
         ChannelUtil.getInstance().execute(() ->
                 tasks.forEach(this::notifyParticipantStop));
+    }
+
+    @Override
+    public void initServices(Job job) {
+
     }
 
     @Override
@@ -141,6 +143,16 @@ public class Coordinator extends Role implements RegistrationService.Registratio
 
     @Override
     public void onHeartbeat(long participantId) {
+
+    }
+
+    @Override
+    public void onStopped(Task task) {
+
+    }
+
+    @Override
+    public void onStarted(Task task) {
 
     }
 }

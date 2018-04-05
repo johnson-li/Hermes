@@ -1,30 +1,37 @@
 package roles;
 
 import core.Context;
-import io.grpc.BindableService;
+import exception.ServiceNotFoundException;
 import io.grpc.ManagedChannel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import proto.hermes.Participant;
+import proto.hermes.Task;
+import services.Service;
 import services.ServiceManager;
+import services.TaskListener;
+import utils.ChannelUtil;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
+import javax.net.ssl.SSLException;
+import java.util.*;
 
-public abstract class Role {
+public abstract class Role implements TaskListener {
     private final Context context;
-    private List<BindableService> services = new ArrayList<>();
+    private Logger logger = LoggerFactory.getLogger(getClass());
+    private List<Service> services = new ArrayList<>();
     private ManagedChannel channel;
 
     public Role(Context context) {
-        this(context, new BindableService[0]);
+        this(context, new Service[0]);
     }
 
-    public Role(Context context, BindableService... services) {
+    public Role(Context context, Service... services) {
         this.context = context;
         addServices(services);
     }
 
     public void init() {
+        services.forEach(Service::init);
     }
 
     ServiceManager getServiceManager() {
@@ -43,11 +50,30 @@ public abstract class Role {
         return getClass().getSimpleName();
     }
 
-    public void addServices(BindableService... services) {
+    void addServices(Service... services) {
         this.services.addAll(Arrays.asList(services));
     }
 
-    public Collection<BindableService> getServices() {
+    @Override
+    public void onTaskAssigned(Task task) {
+        for (Participant ingress : task.getIngressesList()) {
+            try {
+                ManagedChannel channel = ChannelUtil.getInstance()
+                        .newClientChannel(ingress.getAddress().getIp(), ingress.getAddress().getPort());
+                String serviceName = task.getService().getName();
+                Service service = getService(serviceName).orElseThrow(() -> new ServiceNotFoundException(serviceName));
+                ChannelUtil.getInstance().getWorkingGroup().execute(() -> service.listen(channel));
+            } catch (SSLException | ServiceNotFoundException e) {
+                logger.error(e.getMessage(), e);
+            }
+        }
+    }
+
+    private Optional<Service> getService(String name) {
+        return services.stream().filter(service -> service.getClass().getSimpleName().equals(name)).findFirst();
+    }
+
+    public Collection<Service> getServices() {
         return services;
     }
 }

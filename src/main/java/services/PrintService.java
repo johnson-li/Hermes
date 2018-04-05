@@ -1,6 +1,7 @@
 package services;
 
 import io.grpc.ManagedChannel;
+import io.grpc.ServerServiceDefinition;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,6 +14,11 @@ public class PrintService implements Service {
 
     @Override
     public void start() {
+
+    }
+
+    @Override
+    public void init() {
 
     }
 

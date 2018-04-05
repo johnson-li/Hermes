@@ -1,12 +1,13 @@
 package services;
 
 import com.google.protobuf.TextFormat;
+import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proto.hermes.*;
 
-public class TaskController extends TaskControllerGrpc.TaskControllerImplBase {
+public class TaskController extends TaskControllerGrpc.TaskControllerImplBase implements Service {
     private static Logger logger = LoggerFactory.getLogger(TaskController.class);
     private TaskListener listener;
 
@@ -38,11 +39,23 @@ public class TaskController extends TaskControllerGrpc.TaskControllerImplBase {
         responseObserver.onCompleted();
     }
 
-    public interface TaskListener {
-        void onTaskAssigned(Task task);
+    @Override
+    public void listen(ManagedChannel channel) {
 
-        void onStopped(Task task);
+    }
 
-        void onStarted(Task task);
+    @Override
+    public void init() {
+
+    }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
     }
 }

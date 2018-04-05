@@ -2,23 +2,18 @@ package roles;
 
 import com.google.protobuf.TextFormat;
 import core.Context;
-import io.grpc.BindableService;
-import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import proto.hermes.Participant;
 import proto.hermes.Task;
 import services.EchoService;
+import services.Service;
 import services.TaskController;
-import utils.ChannelUtil;
 
-import javax.net.ssl.SSLException;
-
-public class Consumer extends Role implements TaskController.TaskListener {
+public class Consumer extends Role {
     private static Logger logger = LoggerFactory.getLogger(Consumer.class);
-    EchoService echoService = (EchoService) getServiceManager().getService("EchoService");
+    private EchoService echoService = new EchoService();
 
-    public Consumer(Context context, BindableService... services) {
+    public Consumer(Context context, Service... services) {
         super(context, services);
     }
 
@@ -26,6 +21,7 @@ public class Consumer extends Role implements TaskController.TaskListener {
     public void init() {
         addServices(new TaskController(this));
         addServices(echoService);
+        super.init();
     }
 
     @Override
@@ -38,20 +34,5 @@ public class Consumer extends Role implements TaskController.TaskListener {
     public void onStarted(Task task) {
         logger.info("On task started: " + TextFormat.shortDebugString(task));
         echoService.start();
-    }
-
-    @Override
-    public void onTaskAssigned(Task task) {
-        for (Participant ingress : task.getIngressesList()) {
-            try {
-                ManagedChannel channel = ChannelUtil.getInstance()
-                        .newClientChannel(ingress.getAddress().getIp(), ingress.getAddress().getPort());
-                String serviceName = task.getService().getName();
-                ChannelUtil.getInstance().getWorkingGroup().execute(() ->
-                        getServiceManager().getService(serviceName).listen(channel));
-            } catch (SSLException e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
     }
 }

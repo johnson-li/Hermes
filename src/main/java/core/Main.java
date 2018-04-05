@@ -16,36 +16,24 @@ public class Main {
     public static void main(String[] args) throws Exception {
         Config.COORDINATOR_IP = "127.0.0.1";
         Participant coordinator = new Participant("localhost", 5555);
-        Participant producer1 = new Participant("localhost", 5556);
-//        Participant producer2 = new Participant("localhost", 5557);
-//        Participant producer3 = new Participant("localhost", 5558);
-//        Participant producer4 = new Participant("localhost", 5559);
-        Participant consumer1 = new Participant("localhost", 5560);
-//        Participant consumer2 = new Participant("localhost", 5561);
+        Participant producer = new Participant("localhost", 5556);
+        Participant consumer = new Participant("localhost", 5560);
         Participant client = new Participant("localhost", 5562);
 
         coordinator.addRoles(new Coordinator(coordinator));
-        producer1.addRoles(new Producer(producer1));
-//        producer2.addRoles(new Producer(producer2));
-//        producer3.addRoles(new Producer(producer3));
-//        producer4.addRoles(new Producer(producer4));
-        consumer1.addRoles(new Consumer(consumer1));
-//        consumer2.addRoles(new Consumer(consumer2));
+        producer.addRoles(new Producer(producer));
+        consumer.addRoles(new Consumer(consumer));
         client.addRoles(new Client(client));
 
         coordinator.start();
-        producer1.start();
-//        producer2.start();
-//        producer3.start();
-//        producer4.start();
-        consumer1.start();
-//        consumer2.start();
+        producer.start();
+        consumer.start();
         client.start();
 
-        if (producer1.register().getStatus() != Status.SUCCESS) {
+        if (producer.register().getStatus() != Status.SUCCESS) {
             throw new IllegalStateException("Failed to register the producers");
         }
-        if (consumer1.register().getStatus() != Status.SUCCESS) {
+        if (consumer.register().getStatus() != Status.SUCCESS) {
             throw new IllegalStateException("Failed to register the consumers");
         }
         if (client.register().getStatus() != Status.SUCCESS) {
@@ -59,7 +47,7 @@ public class Main {
 
         client.delegate(Client.class).get().finishJob();
 
-        Thread.sleep(1000);
+        Thread.sleep(3000);
         ChannelUtil.getInstance().terminate();
     }
 }

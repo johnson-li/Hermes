@@ -32,6 +32,11 @@ public class RandomGenerator extends RandomGeneratorGrpc.RandomGeneratorImplBase
     }
 
     @Override
+    public void init() {
+
+    }
+
+    @Override
     public void listen(ManagedChannel channel) {
     }
 
