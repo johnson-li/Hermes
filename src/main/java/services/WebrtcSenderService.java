@@ -25,6 +25,7 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
     private Process process;
     private ProcessReader reader;
     private StreamObserver<WebrtcResponse> observer;
+    private Thread workerThread;
 
     public WebrtcSenderService(long id, boolean sendOnly) {
         this.id = id;
@@ -50,7 +51,7 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
         List<String> commands = new ArrayList<>();
         commands.add("/hermes/bin/webrtc/peerconnection_client_terminal");
         Map<String, String> env = new HashMap<>();
-        env.put("coordinator_ip", Config.COORDINATOR_IP);
+        env.put("server", Config.COORDINATOR_IP);
         env.put("name", String.valueOf(id));
         env.put("peer", remotePeer);
         env.put("autocall", "true");
@@ -66,18 +67,19 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-        new Thread(() -> {
-            while (true) {
+        workerThread = new Thread(() -> {
+            while (!Thread.currentThread().isInterrupted()) {
                 if (observer != null) {
                     observer.onNext(WebrtcResponse.newBuilder().setStatus(Status.SUCCESS).build());
                 }
                 try {
-                    Thread.sleep(300);
+                    Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
                 }
             }
-        }).start();
+        });
+        workerThread.start();
     }
 
     @Override
@@ -94,6 +96,10 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
         if (reader != null && reader.isAlive()) {
             reader.interrupt();
             reader = null;
+        }
+        if (workerThread != null && workerThread.isAlive()) {
+            workerThread.interrupt();
+            workerThread = null;
         }
     }
 }
