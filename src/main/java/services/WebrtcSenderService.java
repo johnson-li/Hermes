@@ -48,7 +48,7 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
     @Override
     public void start() {
         List<String> commands = new ArrayList<>();
-        commands.add("/hermes/bin/webrtc/peerconnection_server_terminal");
+        commands.add("/hermes/bin/webrtc/peerconnection_client_terminal");
         Map<String, String> env = new HashMap<>();
         env.put("coordinator_ip", Config.COORDINATOR_IP);
         env.put("name", String.valueOf(id));
