@@ -49,7 +49,7 @@ public class Starter {
             client.startJob();
 
             try {
-                Thread.sleep(5000);
+                Thread.sleep(Config.RUNNING_TIME);
             } catch (InterruptedException e) {
                 logger.error(e.getMessage(), e);
             }

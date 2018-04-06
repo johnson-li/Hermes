@@ -8,13 +8,12 @@ import java.util.List;
 
 public class Config {
 
-    public static String COORDINATOR_IP = "10.96.1.2";
+    public static String COORDINATOR_IP = "172.16.156.128";
     public static int COORDINATOR_PORT = 5555;
     public static List<String> ROLES = new ArrayList<>();
     public static String HOST = "127.0.0.1";
     public static int PORT = 5555;
-    public static String PROJECT_PATH = System.getProperty("user.dir");
-    public static String WEBRTC_PATH = PROJECT_PATH + "/bin/webrtc";
+    public static int RUNNING_TIME = 120000;
 
     static {
         try {
@@ -41,6 +40,10 @@ public class Config {
         String port = System.getenv("port");
         if (valid(port)) {
             PORT = Integer.valueOf(port);
+        }
+        String runningTime = System.getenv("running_time");
+        if (valid(runningTime)) {
+            RUNNING_TIME = Integer.valueOf(runningTime);
         }
     }
 

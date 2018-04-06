@@ -1,5 +1,8 @@
 FROM java:8-jdk
 
+RUN apt-get update
+RUN apt-get install -y pulseaudio consolekit
+
 WORKDIR /hermes
 COPY bin/webrtc bin/webrtc
 COPY script script

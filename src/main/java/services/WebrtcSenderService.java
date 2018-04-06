@@ -73,7 +73,7 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
                     observer.onNext(WebrtcResponse.newBuilder().setStatus(Status.SUCCESS).build());
                 }
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(10000);
                 } catch (InterruptedException e) {
                     logger.error(e.getMessage(), e);
                 }
