@@ -19,6 +19,11 @@ public class DockerManager {
     private DockerManager() {
         try {
             socket = IO.socket("http://195.148.127.245:3000");
+            socket.on("start_container_result", args -> {
+                for (Object arg : args) {
+                    logger.info(arg.toString());
+                }
+            });
         } catch (URISyntaxException e) {
             logger.error(e.getMessage(), e);
         }
@@ -26,6 +31,15 @@ public class DockerManager {
 
     public static DockerManager getInstance() {
         return ourInstance;
+    }
+
+    public static void main(String[] args) throws Exception {
+        //client
+        getInstance().startContainer("195.148.125.214", new HashMap<>(), "johnson163/hermes-arm", 8080, "client");
+        //consumer
+        getInstance().startContainer("195.148.125.212", new HashMap<>(), "johnson163/hermes", 8080, "consumer");
+        //producer
+        getInstance().startContainer("195.148.125.213", new HashMap<>(), "johnson163/hermes-arm", 8080, "producer");
     }
 
     public void startContainer(String ip, Map<String, String> env, String image, int port, String type) {
