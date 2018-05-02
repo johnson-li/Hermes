@@ -49,7 +49,10 @@ public class Participant extends Context {
         ServerBuilder builder = ServerBuilder.forPort(port).useTransportSecurity(ssc.certificate(), ssc.privateKey());
         logger.info("Roles: " + String.join(", ", roles.stream().map(Role::getRoleName).collect(Collectors.toList())));
         for (Role role : roles) {
-            role.getServices().stream().filter(service -> service.bindService() != null).forEach(builder::addService);
+            role.getServices().stream().filter(service -> service.bindService() != null).forEach(service -> {
+                logger.info("Add service: " + service.getClass().getSimpleName());
+                builder.addService(service);
+            });
         }
         server = builder.build();
         server.start();
