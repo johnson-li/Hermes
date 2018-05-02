@@ -10,6 +10,7 @@ import proto.hermes.*;
 import services.*;
 import services.Service;
 import utils.ChannelUtil;
+import utils.DockerManager;
 
 import javax.net.ssl.SSLException;
 import java.util.ArrayList;
@@ -69,7 +70,8 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         jobs.Job workingJob = JobManager.getInstance().getByName(job.getName());
         List<Task> tasks = workingJob.getTasks().stream().map(this::assignParticipant).collect(Collectors.toList());
         workingJob.setTasks(tasks);
-        ChannelUtil.getInstance().execute(() -> tasks.forEach(this::notifyParticipant));
+//        ChannelUtil.getInstance().execute(() -> tasks.forEach(this::notifyParticipant));
+        ChannelUtil.getInstance().execute(() -> tasks.forEach(this::startContainer));
         jobs.put(workingJob.getID(), workingJob);
         logger.info(TextFormat.shortDebugString(workingJob.getTasks().get(0)));
         return workingJob;
@@ -128,6 +130,12 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         } catch (SSLException e) {
             logger.error(e.getMessage(), e);
         }
+    }
+
+    private void startContainer(Task task) {
+        Map<String, String> env = new HashMap<>();
+        Participant participant = task.getSelf();
+        DockerManager.getInstance().startContainer(participant.getAddress().getIp(), env, "johnson163/hermes", participant.getAddress().getPort(), participant.getRoles(0).getRole());
     }
 
     private void notifyParticipant(Task task) {

@@ -48,6 +48,10 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
 
     @Override
     public void start() {
+        // Disable webrtc client
+        if (true) {
+            return;
+        }
         List<String> commands = new ArrayList<>();
         commands.add("/hermes/bin/webrtc/peerconnection_client_terminal");
         Map<String, String> env = new HashMap<>();

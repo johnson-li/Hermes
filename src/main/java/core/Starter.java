@@ -9,8 +9,6 @@ import roles.Consumer;
 import roles.Coordinator;
 import roles.Producer;
 
-import java.util.Optional;
-
 public class Starter {
     static Logger logger = LoggerFactory.getLogger(Starter.class);
 
@@ -43,8 +41,7 @@ public class Starter {
         }
 
         // Start the requests
-        Optional<Client> clientOptional = participant.delegate(Client.class);
-        clientOptional.ifPresent(client -> {
+        participant.delegate(Client.class).ifPresent(client -> {
             client.initJob();
             client.startJob();
 

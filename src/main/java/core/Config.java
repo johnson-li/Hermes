@@ -8,12 +8,12 @@ import java.util.List;
 
 public class Config {
 
-    public static String COORDINATOR_IP = "172.16.156.128";
+    public static String COORDINATOR_IP = "195.148.127.246";
     public static int COORDINATOR_PORT = 5555;
     public static List<String> ROLES = new ArrayList<>();
     public static String HOST = "127.0.0.1";
     public static int PORT = 5555;
-    public static int RUNNING_TIME = 120000;
+    public static int RUNNING_TIME = 20000;
 
     static {
         try {
