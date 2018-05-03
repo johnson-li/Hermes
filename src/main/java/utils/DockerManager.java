@@ -3,6 +3,8 @@ package utils;
 import com.google.common.collect.ImmutableMap;
 import io.socket.client.IO;
 import io.socket.client.Socket;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,22 +19,35 @@ public class DockerManager {
     private Logger logger = LoggerFactory.getLogger(DockerManager.class);
     private Socket socket;
     private List<String> names = new ArrayList<>();
+    private List<String> ips = new ArrayList<>();
 
     private DockerManager() {
         try {
             socket = IO.socket("http://195.148.127.245:3000");
-            socket.on("edge.start.status", args -> {
-                System.out.println(args[0].getClass());
-                if (args[0] instanceof Map) {
-                    Map<String, Object> map = (Map<String, Object>) args[0];
-                    names.add(map.get("Name").toString());
+            socket.on("start.status", args -> {
+                if (args[0] instanceof JSONObject) {
+                    JSONObject json = (JSONObject) args[0];
+                    logger.info(json.toString());
+                    try {
+                        String name = json.get("name").toString();
+                        String ip = json.get("id").toString();
+                        names.add(name);
+                        ips.add(ip);
+                    } catch (JSONException e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                } else {
+                    System.out.println(args[0].getClass());
                 }
             });
-            socket.on("prod.start.status", args -> {
+            socket.on("stop.status", args -> {
                 System.out.println(args[0].getClass());
-                if (args[0] instanceof Map) {
-                    Map<String, Object> map = (Map<String, Object>) args[0];
-                    names.add(map.get("Name").toString());
+                System.out.println();
+                if (args[0] instanceof JSONObject) {
+                    JSONObject json = (JSONObject) args[0];
+                    logger.info(json.toString());
+                } else {
+                    System.out.println(args[0].getClass());
                 }
             });
             socket.connect();
@@ -60,16 +75,19 @@ public class DockerManager {
         map.get("producer").add(data);
         getInstance().socket.emit("start_containers", map);
 
-        Thread.sleep(20000);
+        Thread.sleep(8000);
 
         Map<String, List<Map<String, String>>> terminateMap = new HashMap<>();
-        map.put("producer", new ArrayList<>());
-        map.put("consumer", new ArrayList<>());
-        getInstance().names.forEach(name -> {
-            Map<String, String> wrapped = getInstance().stopContainer(name);
-            map.get("consumer").add(wrapped);
-        });
+        terminateMap.put("common", new ArrayList<>());
+        for (int i = 0; i < getInstance().names.size(); i++) {
+            String name = getInstance().names.get(i);
+            String ip = getInstance().ips.get(i);
+            Map<String, String> wrapped = getInstance().stopContainer(name, ip);
+            terminateMap.get("common").add(wrapped);
+        }
         getInstance().socket.emit("stop_containers", terminateMap);
+
+        System.out.println("finished");
     }
 
     public Map<String, Object> startContainer(String ip, Map<String, String> env, String image, int port, String type) {
@@ -92,9 +110,10 @@ public class DockerManager {
         return args;
     }
 
-    public Map<String, String> stopContainer(String name) {
+    public Map<String, String> stopContainer(String name, String ip) {
         Map<String, String> args = new HashMap<>();
         args.put("name", name);
+        args.put("ip", ip);
         return args;
     }
 }
