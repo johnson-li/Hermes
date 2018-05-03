@@ -133,8 +133,9 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     }
 
     private void startContainer(Task task) {
-        Map<String, String> env = new HashMap<>();
         Participant participant = task.getSelf();
+        Map<String, String> env = new HashMap<>();
+        env.put("id", Long.toString(participant.getId()));
         DockerManager.getInstance().startContainer(participant.getAddress().getIp(), env, "johnson163/hermes", participant.getAddress().getPort(), participant.getRoles(0).getRole());
     }
 
@@ -151,6 +152,6 @@ public class Coordinator extends Role implements RegistrationService.Registratio
 
     @Override
     public void onHeartbeat(long participantId) {
-
+        logger.info("Received hearth beat from: " + participantId);
     }
 }

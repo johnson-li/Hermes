@@ -11,9 +11,11 @@ public class Config {
     public static String COORDINATOR_IP = "195.148.127.246";
     public static int COORDINATOR_PORT = 5555;
     public static List<String> ROLES = new ArrayList<>();
+    public static List<String> SERVICES = new ArrayList<>();
     public static String HOST = "127.0.0.1";
     public static int PORT = 5555;
     public static int RUNNING_TIME = 20000;
+    public static long ID = 0;
 
     static {
         try {
@@ -28,6 +30,10 @@ public class Config {
         String roles = System.getenv("roles");
         if (valid(roles)) {
             ROLES.addAll(Arrays.asList(roles.split(",")));
+        }
+        String services = System.getenv("services");
+        if (valid(services)) {
+            SERVICES.addAll(Arrays.asList(services.split(",")));
         }
         String coordinator = System.getenv("coordinator");
         if (valid(coordinator)) {
@@ -44,6 +50,10 @@ public class Config {
         String runningTime = System.getenv("running_time");
         if (valid(runningTime)) {
             RUNNING_TIME = Integer.valueOf(runningTime);
+        }
+        String id = System.getenv("id");
+        if (valid(id)) {
+            ID = Long.valueOf(id);
         }
     }
 

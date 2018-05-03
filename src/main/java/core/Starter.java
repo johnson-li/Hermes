@@ -10,7 +10,7 @@ import roles.Coordinator;
 import roles.Producer;
 
 public class Starter {
-    static Logger logger = LoggerFactory.getLogger(Starter.class);
+    private static Logger logger = LoggerFactory.getLogger(Starter.class);
 
     public static void main(String[] args) throws Exception {
         logger.info("Starting...");
@@ -38,6 +38,7 @@ public class Starter {
             if (participant.register().getStatus() != Status.SUCCESS) {
                 throw new IllegalStateException("Fail to register");
             }
+            participant.startHeartbeat();
         }
 
         // Start the requests

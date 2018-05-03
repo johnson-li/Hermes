@@ -13,6 +13,7 @@ import proto.hermes.RegistrationGrpc;
 import proto.hermes.RegistrationRequest;
 import proto.hermes.RegistrationResult;
 import roles.Role;
+import services.HeartbeatClient;
 import utils.ChannelUtil;
 
 import javax.net.ssl.SSLException;
@@ -23,6 +24,7 @@ import java.util.stream.Collectors;
 
 public class Participant extends Context {
     private static Logger logger = LoggerFactory.getLogger(Participant.class);
+    private final HeartbeatClient heartbeatClient;
     private ManagedChannel channel;
     private Set<Role> roles = new HashSet<>();
     private int port;
@@ -33,6 +35,7 @@ public class Participant extends Context {
         super(id);
         this.host = host;
         this.port = port;
+        heartbeatClient = new HeartbeatClient(id);
     }
 
     public Participant(String host, int port) {
@@ -83,6 +86,16 @@ public class Participant extends Context {
                         .setAddress(NetAddress.newBuilder().setIp(host).setPort(port).build()).build();
         RegistrationRequest request = RegistrationRequest.newBuilder().setParticipant(participant).build();
         return stub.register(request);
+    }
+
+    public void startHeartbeat() {
+        try {
+            channel = ChannelUtil.getInstance().newClientChannel(Config.COORDINATOR_IP, Config.COORDINATOR_PORT);
+        } catch (SSLException e) {
+            logger.error(e.getMessage(), e);
+        }
+        heartbeatClient.listen(channel);
+        heartbeatClient.start();
     }
 
     @SuppressWarnings("unchecked")

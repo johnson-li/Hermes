@@ -91,6 +91,7 @@ public class DockerManager {
     }
 
     public Map<String, Object> startContainer(String ip, Map<String, String> env, String image, int port, String type) {
+        logger.info(String.format("Start container in: %s, with image: %s", ip, image));
         Map<String, Object> args = new HashMap<>();
         String envString = "";
         for (String key : env.keySet()) {
