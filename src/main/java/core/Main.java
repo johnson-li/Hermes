@@ -15,6 +15,8 @@ public class Main {
 
     public static void main(String[] args) throws Exception {
         Config.COORDINATOR_IP = "127.0.0.1";
+        Config.SERVICES.add("WebrtcSenderService");
+        Config.SERVICES.add("WebrtcClientService");
         Participant coordinator = new Participant("localhost", 5555);
         Participant producer = new Participant("localhost", 5556);
         Participant consumer = new Participant("localhost", 5560);

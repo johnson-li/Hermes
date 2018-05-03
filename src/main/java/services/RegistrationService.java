@@ -10,6 +10,7 @@ import proto.hermes.RegistrationRequest;
 import proto.hermes.RegistrationResult;
 import proto.hermes.Status;
 
+@DefaultRun
 public class RegistrationService extends RegistrationGrpc.RegistrationImplBase implements Service {
     private static Logger logger = LoggerFactory.getLogger(RegistrationService.class);
     private RegistrationListener listener;

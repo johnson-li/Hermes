@@ -8,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proto.hermes.*;
 
+@DefaultRun
 public class TaskController extends TaskControllerGrpc.TaskControllerImplBase implements Service {
     private static Logger logger = LoggerFactory.getLogger(TaskController.class);
     private TaskListener listener;

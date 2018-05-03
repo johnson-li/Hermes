@@ -7,6 +7,7 @@ import proto.hermes.HeartbeatRequest;
 import proto.hermes.HeartbeatResponse;
 import proto.hermes.Status;
 
+@DefaultRun
 public class HeartbeatService extends HeartbeatGrpc.HeartbeatImplBase implements Service {
     private HeartbeatListener listener;
 

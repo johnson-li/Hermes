@@ -7,6 +7,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proto.hermes.*;
 
+@DefaultRun
 public class JobService extends JobManagerGrpc.JobManagerImplBase implements Service {
     private static Logger logger = LoggerFactory.getLogger(JobService.class);
 

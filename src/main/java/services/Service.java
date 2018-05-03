@@ -32,4 +32,8 @@ public interface Service extends BindableService {
     default ServerServiceDefinition bindService() {
         return null;
     }
+
+    default String getName() {
+        return getClass().getSimpleName();
+    }
 }

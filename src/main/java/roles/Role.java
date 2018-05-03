@@ -1,5 +1,6 @@
 package roles;
 
+import core.Config;
 import core.Context;
 import exception.ServiceNotFoundException;
 import io.grpc.ManagedChannel;
@@ -7,6 +8,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proto.hermes.Participant;
 import proto.hermes.Task;
+import services.DefaultRun;
 import services.Service;
 import services.ServiceManager;
 import services.TaskListener;
@@ -51,7 +53,8 @@ public abstract class Role implements TaskListener {
     }
 
     void addServices(Service... services) {
-        this.services.addAll(Arrays.asList(services));
+        Arrays.stream(services).filter(service -> service.getClass().isAnnotationPresent(DefaultRun.class)
+                || Config.SERVICES.contains(service.getName())).forEach(this.services::add);
     }
 
     @Override

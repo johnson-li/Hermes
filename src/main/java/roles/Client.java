@@ -34,10 +34,12 @@ public class Client extends Role implements TaskListener {
     public void startJob() {
         JobManagerGrpc.JobManagerBlockingStub stub = JobManagerGrpc.newBlockingStub(getChannel());
         StartJobResult result = stub.startJob(Job.newBuilder().setId(jobId).build());
+        logger.info("Job start result: " + result.getStatus());
     }
 
     public void finishJob() {
         JobManagerGrpc.JobManagerBlockingStub stub = JobManagerGrpc.newBlockingStub(getChannel());
         FinishJobResult result = stub.finishJob(Job.newBuilder().setId(jobId).build());
+        logger.info("Job stop result: " + result.getStatus());
     }
 }
