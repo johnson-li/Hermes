@@ -3,6 +3,7 @@ package services;
 import io.grpc.BindableService;
 import io.grpc.ManagedChannel;
 import io.grpc.ServerServiceDefinition;
+import proto.hermes.Protocol;
 
 public interface Service extends BindableService {
 
@@ -35,5 +36,9 @@ public interface Service extends BindableService {
 
     default String getName() {
         return getClass().getSimpleName();
+    }
+
+    default proto.hermes.Service getService() {
+        return proto.hermes.Service.newBuilder().setName(getName()).setProtocol(Protocol.GRPC).build();
     }
 }

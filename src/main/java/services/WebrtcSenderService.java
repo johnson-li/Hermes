@@ -5,10 +5,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import proto.hermes.Status;
-import proto.hermes.WebrtcGrpc;
-import proto.hermes.WebrtcInfo;
-import proto.hermes.WebrtcResponse;
+import proto.hermes.*;
 import utils.ProcessReader;
 
 import java.io.IOException;
@@ -89,6 +86,11 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
     @Override
     public void init() {
 
+    }
+
+    @Override
+    public proto.hermes.Service getService() {
+        return proto.hermes.Service.newBuilder().setName(getName()).setProtocol(Protocol.WebRTC).build();
     }
 
     @Override

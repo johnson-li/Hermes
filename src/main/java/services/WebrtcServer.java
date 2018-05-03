@@ -3,6 +3,7 @@ package services;
 import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import proto.hermes.Protocol;
 import proto.hermes.WebrtcServerGrpc;
 import utils.ProcessReader;
 
@@ -37,6 +38,11 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
 
     @Override
     public void start() {
+    }
+
+    @Override
+    public proto.hermes.Service getService() {
+        return proto.hermes.Service.newBuilder().setName(getName()).setProtocol(Protocol.WebRTC).build();
     }
 
     @Override

@@ -4,6 +4,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import proto.hermes.Protocol;
 import proto.hermes.WebrtcGrpc;
 import proto.hermes.WebrtcInfo;
 import proto.hermes.WebrtcResponse;
@@ -45,5 +46,10 @@ public class WebrtcClientService implements Service {
     @Override
     public void stop() {
 
+    }
+
+    @Override
+    public proto.hermes.Service getService() {
+        return proto.hermes.Service.newBuilder().setName(getName()).setProtocol(Protocol.WebRTC).build();
     }
 }

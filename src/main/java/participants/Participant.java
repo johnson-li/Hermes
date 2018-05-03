@@ -8,10 +8,7 @@ import io.grpc.ServerBuilder;
 import io.netty.handler.ssl.util.SelfSignedCertificate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import proto.hermes.NetAddress;
-import proto.hermes.RegistrationGrpc;
-import proto.hermes.RegistrationRequest;
-import proto.hermes.RegistrationResult;
+import proto.hermes.*;
 import roles.Role;
 import services.HeartbeatClient;
 import utils.ChannelUtil;
@@ -80,9 +77,11 @@ public class Participant extends Context {
         }
         List<proto.hermes.Role> roleList = roles.stream().map(role ->
                 proto.hermes.Role.newBuilder().setRole(role.getRoleName()).build()).collect(Collectors.toList());
+        List<Service> serviceList = roles.stream().flatMap(role ->
+                role.getServices().stream().map(services.Service::getService)).collect(Collectors.toList());
         RegistrationGrpc.RegistrationBlockingStub stub = RegistrationGrpc.newBlockingStub(channel);
         proto.hermes.Participant participant =
-                proto.hermes.Participant.newBuilder().setId(id).addAllRoles(roleList)
+                proto.hermes.Participant.newBuilder().setId(id).addAllRoles(roleList).addAllServices(serviceList)
                         .setAddress(NetAddress.newBuilder().setIp(host).setPort(port).build()).build();
         RegistrationRequest request = RegistrationRequest.newBuilder().setParticipant(participant).build();
         return stub.register(request);
