@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 public class Coordinator extends Role implements RegistrationService.RegistrationListener, JobService.JobListener,
         HeartbeatService.HeartbeatListener {
     private static Logger logger = LoggerFactory.getLogger(Coordinator.class);
-    private List<Participant> participants = new ArrayList<>();
+    private Map<Long, List<Participant>> participants = new HashMap<>();
     private Map<String, Integer> participantIndexes = new HashMap<>();
     private Map<Long, jobs.Job> jobs = new HashMap<>();
 
@@ -41,7 +41,9 @@ public class Coordinator extends Role implements RegistrationService.Registratio
 
     @Override
     public void onRegistered(RegistrationRequest request) {
-        participants.add(request.getParticipant());
+        Participant participant = request.getParticipant();
+        participants.putIfAbsent(participant.getId(), new ArrayList<>());
+        participants.get(participant.getId()).add(participant);
     }
 
     @Override
@@ -106,7 +108,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         if (character.equals("egress")) {
             index = 0;
         }
-        return participants.stream().filter(participant -> participant.getRolesList().stream()
+        return participants.values().stream().map(list -> list.stream().findFirst().get()).filter(participant -> participant.getRolesList().stream()
                 .allMatch(r -> r.getRole().equals(role.getRole()))).collect(Collectors.toList()).get(index);
     }
 
@@ -136,6 +138,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         Participant participant = task.getSelf();
         Map<String, String> env = new HashMap<>();
         env.put("id", Long.toString(participant.getId()));
+        env.put("services", String.join(",", task.getSelf().getServicesList().stream().map(proto.hermes.Service::getName).collect(Collectors.toList())));
         DockerManager.getInstance().startContainer(participant.getAddress().getIp(), env, "johnson163/hermes", participant.getAddress().getPort(), participant.getRoles(0).getRole());
     }
 
