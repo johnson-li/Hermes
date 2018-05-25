@@ -1,7 +1,6 @@
 package services;
 
 import com.google.protobuf.TextFormat;
-import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,26 +25,6 @@ public class RegistrationService extends RegistrationGrpc.RegistrationImplBase i
         responseObserver.onNext(RegistrationResult.newBuilder().setStatus(Status.SUCCESS)
                 .setParticipantId(request.getParticipant().getId()).build());
         responseObserver.onCompleted();
-    }
-
-    @Override
-    public void listen(ManagedChannel channel) {
-
-    }
-
-    @Override
-    public void init() {
-
-    }
-
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
     }
 
     public interface RegistrationListener {

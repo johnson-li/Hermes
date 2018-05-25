@@ -72,3 +72,31 @@ message StopResult {
 message StartResult {
     Status status = 1;
 }
+
+service ServiceController {
+    rpc Init (InitServiceRequest) returns (InitServiceResponse) {
+    }
+
+    rpc Start (Empty) returns (StartServiceResponse) {
+    }
+
+    rpc Stop (Empty) returns (StopServiceResponse) {
+    }
+}
+
+message InitServiceRequest {
+    map<string, string> parameters = 1;
+}
+
+message InitServiceResponse {
+    Status status = 1;
+}
+
+message StartServiceResponse {
+    Status status = 1;
+}
+
+message StopServiceResponse {
+    Status status = 1;
+}
+

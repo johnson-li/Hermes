@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import proto.hermes.*;
 import roles.Role;
 import services.HeartbeatClient;
+import services.IdentificationService;
 import utils.ChannelUtil;
 
 import javax.net.ssl.SSLException;
@@ -27,7 +28,6 @@ public class Participant extends Context {
     private int port;
     private String host;
     private Server server;
-
     public Participant(String host, int port, long id) {
         super(id);
         this.host = host;
@@ -39,6 +39,10 @@ public class Participant extends Context {
         this(host, port, UUID.randomUUID().getLeastSignificantBits());
     }
 
+    public String getHost() {
+        return host;
+    }
+
     public void addRoles(Role... roles) {
         Arrays.stream(roles).forEach(Role::init);
         this.roles.addAll(Arrays.asList(roles));
@@ -48,6 +52,7 @@ public class Participant extends Context {
         SelfSignedCertificate ssc = new SelfSignedCertificate();
         ServerBuilder builder = ServerBuilder.forPort(port).useTransportSecurity(ssc.certificate(), ssc.privateKey());
         logger.info("Roles: " + String.join(", ", roles.stream().map(Role::getRoleName).collect(Collectors.toList())));
+        builder.addService(new IdentificationService(this));
         for (Role role : roles) {
             role.getServices().stream().filter(service -> service.bindService() != null).forEach(service -> {
                 logger.info("Add service: " + service.getClass().getSimpleName());
@@ -99,6 +104,6 @@ public class Participant extends Context {
 
     @SuppressWarnings("unchecked")
     public <T extends Role> Optional<T> delegate(Class<T> clazz) {
-        return (Optional<T>) getRoles().stream().filter(role -> clazz.isInstance(role)).findFirst();
+        return (Optional<T>) getRoles().stream().filter(clazz::isInstance).findFirst();
     }
 }

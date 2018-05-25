@@ -20,11 +20,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class Coordinator extends Role implements RegistrationService.RegistrationListener, JobService.JobListener,
-        HeartbeatService.HeartbeatListener {
+        HeartbeatService.HeartbeatListener, ServiceListener {
     private static Logger logger = LoggerFactory.getLogger(Coordinator.class);
-    private Map<Long, List<Participant>> participants = new HashMap<>();
-    private Map<String, Integer> participantIndexes = new HashMap<>();
+    private Map<Long, Participant> participants = new HashMap<>();
     private Map<Long, jobs.Job> jobs = new HashMap<>();
+    private Map<Long, List<ServiceInfo>> servicesByParticipant = new HashMap<>();
+    private Map<Long, List<ServiceInfo>> servicesByJob = new HashMap<>();
 
     public Coordinator(Context context, Service... services) {
         super(context, services);
@@ -32,18 +33,15 @@ public class Coordinator extends Role implements RegistrationService.Registratio
 
     @Override
     public void init() {
-        addServices(new RegistrationService(this));
-        addServices(new JobService(this));
-        addServices(new HeartbeatService(this));
-        addServices(new WebrtcServer());
+        addServices(new RegistrationService(this), new JobService(this),
+                new HeartbeatService(this), new WebrtcServer(), new ServiceRegistration(this));
         super.init();
     }
 
     @Override
     public void onRegistered(RegistrationRequest request) {
         Participant participant = request.getParticipant();
-        participants.putIfAbsent(participant.getId(), new ArrayList<>());
-        participants.get(participant.getId()).add(participant);
+        participants.put(participant.getId(), participant);
     }
 
     @Override
@@ -73,7 +71,8 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         List<Task> tasks = workingJob.getTasks().stream().map(this::assignParticipant).collect(Collectors.toList());
         workingJob.setTasks(tasks);
 //        ChannelUtil.getInstance().execute(() -> tasks.forEach(this::notifyParticipant));
-        ChannelUtil.getInstance().execute(() -> tasks.forEach(this::startContainer));
+        servicesByJob.put(job.getId(), new ArrayList<>());
+        ChannelUtil.getInstance().execute(() -> tasks.forEach(task -> startContainer(task, job.getId())));
         jobs.put(workingJob.getID(), workingJob);
         logger.info(TextFormat.shortDebugString(workingJob.getTasks().get(0)));
         return workingJob;
@@ -103,13 +102,8 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     }
 
     private Participant getParticipant(proto.hermes.Role role, String character) {
-        int index = participantIndexes.getOrDefault(role.getRole() + character, 0);
-        participantIndexes.put(role.getRole() + character, index + 1);
-        if (character.equals("egress")) {
-            index = 0;
-        }
-        return participants.values().stream().map(list -> list.stream().findFirst().get()).filter(participant -> participant.getRolesList().stream()
-                .allMatch(r -> r.getRole().equals(role.getRole()))).collect(Collectors.toList()).get(index);
+        return participants.values().stream().filter(participant -> participant.getRolesList().stream().anyMatch(r ->
+                r.getRole().equals(role.getRole()))).findFirst().orElse(null);
     }
 
     private void notifyParticipantStop(Task task) {
@@ -134,10 +128,10 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         }
     }
 
-    private void startContainer(Task task) {
+    private void startContainer(Task task, long jobId) {
         Participant participant = task.getSelf();
         Map<String, String> env = new HashMap<>();
-        env.put("id", Long.toString(participant.getId()));
+        env.put("functionality", "service");
         env.put("services", String.join(",", task.getSelf().getServicesList().stream().map(proto.hermes.Service::getName).collect(Collectors.toList())));
         DockerManager.getInstance().startContainer(participant.getAddress().getIp(), env, "johnson163/hermes", participant.getAddress().getPort(), participant.getRoles(0).getRole());
     }
@@ -156,5 +150,13 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     @Override
     public void onHeartbeat(long participantId) {
         logger.info("Received hearth beat from: " + participantId);
+    }
+
+    @Override
+    public void onRegister(ServiceInfo serviceInfo) {
+        logger.info("On service registered: " + serviceInfo.getNameList() + ", from: " + serviceInfo.getId());
+        servicesByParticipant.computeIfAbsent(serviceInfo.getId(), (id) -> new ArrayList<>());
+        servicesByParticipant.get(serviceInfo.getId()).add(serviceInfo);
+        servicesByJob.get(serviceInfo.getJobId()).add(serviceInfo);
     }
 }

@@ -1,5 +1,7 @@
 package core;
 
+import participants.Functionality;
+
 import java.net.Inet4Address;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
@@ -11,11 +13,15 @@ public class Config {
     public static String COORDINATOR_IP = "195.148.127.246";
     public static int COORDINATOR_PORT = 5555;
     public static List<String> ROLES = new ArrayList<>();
-    public static List<String> SERVICES = new ArrayList<>();
+    public static List<String> SERVICES = new ArrayList<>(); // This is by both the management and the service, the usage is not exactly the same
     public static String HOST = "127.0.0.1";
     public static int PORT = 5555;
+    public static int SERVICE_PORT = 5556;
     public static int RUNNING_TIME = 20000;
-    public static long ID = 0;
+    public static long ID;
+    public static Functionality FUNCTIONALITY = Functionality.MANAGEMENT;
+    public static String MANAGEMENT_IP = "127.0.0.1";
+    public static long JOB_ID;
 
     static {
         try {
@@ -54,6 +60,22 @@ public class Config {
         String id = System.getenv("id");
         if (valid(id)) {
             ID = Long.valueOf(id);
+        }
+        String functionality = System.getenv("functionality");
+        if (valid(functionality)) {
+            FUNCTIONALITY = Functionality.valueOf(functionality.toUpperCase());
+        }
+        String managementIP = System.getenv("management_ip");
+        if (valid(managementIP)) {
+            MANAGEMENT_IP = managementIP;
+        }
+        String servicePort = System.getenv("service_port");
+        if (valid(servicePort)) {
+            SERVICE_PORT = Integer.valueOf(servicePort);
+        }
+        String jobID = System.getenv("job_id");
+        if (valid(jobID)) {
+            JOB_ID = Long.valueOf(jobID);
         }
     }
 

@@ -74,3 +74,14 @@ enum Protocol {
     GRPC = 0;
     WebRTC = 1;
 }
+
+service Identify {
+    rpc Identify (Empty) returns (Identification) {
+    }
+}
+
+message Identification {
+    int64 id = 1;
+    repeated Role roles = 2;
+    string ip = 3;
+}

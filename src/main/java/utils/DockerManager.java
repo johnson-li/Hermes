@@ -23,7 +23,7 @@ public class DockerManager {
 
     private DockerManager() {
         try {
-            socket = IO.socket("http://195.148.127.245:3000");
+            socket = IO.socket("http://195.148.127.246:3000");
             socket.on("start.status", args -> {
                 if (args[0] instanceof JSONObject) {
                     JSONObject json = (JSONObject) args[0];
@@ -85,7 +85,7 @@ public class DockerManager {
             Map<String, String> wrapped = getInstance().stopContainer(name, ip);
             terminateMap.get("common").add(wrapped);
         }
-        getInstance().socket.emit("stop_containers", terminateMap);
+//        getInstance().socket.emit("stop_containers", terminateMap);
 
         System.out.println("finished");
     }
@@ -100,6 +100,7 @@ public class DockerManager {
         if (type.equals("consumer")) {
             args.put("ip", "");
             args.put("port", Integer.toString(port));
+            args.put("network", "195.148.125.0");
         } else {
             args.put("ip", ip);
             envString += String.format(" -p %s:%s", port, port);
