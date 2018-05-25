@@ -36,11 +36,6 @@ public class HeartbeatClient implements Service, StreamObserver<HeartbeatRespons
     }
 
     @Override
-    public void init() {
-
-    }
-
-    @Override
     public void start() {
         interrupted = false;
         ChannelUtil.getInstance().execute(this::run, 1000);
@@ -53,7 +48,7 @@ public class HeartbeatClient implements Service, StreamObserver<HeartbeatRespons
 
     @Override
     public void onNext(HeartbeatResponse value) {
-        logger.info("Heartbeat result: " + value.getStatus());
+//        logger.info("Heartbeat result: " + value.getStatus());
     }
 
     @Override

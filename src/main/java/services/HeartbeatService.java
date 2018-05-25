@@ -21,26 +21,6 @@ public class HeartbeatService extends HeartbeatGrpc.HeartbeatImplBase implements
         listener.onHeartbeat(request.getParticipantId());
     }
 
-    @Override
-    public void listen(ManagedChannel channel) {
-
-    }
-
-    @Override
-    public void init() {
-
-    }
-
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
-
     public interface HeartbeatListener {
         void onHeartbeat(long participantId);
     }
