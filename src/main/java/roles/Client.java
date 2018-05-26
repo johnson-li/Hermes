@@ -1,7 +1,7 @@
 package roles;
 
 import core.Context;
-import jobs.VideoJob;
+import jobs.EchoJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proto.hermes.*;
@@ -27,7 +27,7 @@ public class Client extends Role implements TaskListener {
     public void initJob() {
         JobManagerGrpc.JobManagerBlockingStub stub = JobManagerGrpc.newBlockingStub(getChannel());
         InitJobResult result =
-                stub.initJob(Job.newBuilder().setName(jobs.Job.getJobName(VideoJob.class)).build());
+                stub.initJob(Job.newBuilder().setName(jobs.Job.getJobName(EchoJob.class)).build());
         jobId = result.getId();
     }
 

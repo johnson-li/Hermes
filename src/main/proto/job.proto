@@ -85,7 +85,11 @@ service ServiceController {
 }
 
 message InitServiceRequest {
-    map<string, string> parameters = 1;
+    string ingressIP = 1;
+    int32 ingressPort = 2;
+    string egressIP = 3;
+    int32 egressPort = 4;
+    map<string, string> parameters = 5;
 }
 
 message InitServiceResponse {

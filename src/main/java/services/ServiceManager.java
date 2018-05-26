@@ -18,6 +18,9 @@ public class ServiceManager {
             case "EchoService":
                 service = new EchoService();
                 break;
+            case "RandomGenerator":
+                service = new RandomGenerator();
+                break;
         }
         services.put(name, service);
         return service;

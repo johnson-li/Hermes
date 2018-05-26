@@ -1,6 +1,7 @@
 package roles;
 
 import com.google.protobuf.TextFormat;
+import core.Config;
 import core.Context;
 import io.grpc.ManagedChannel;
 import jobs.JobManager;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 public class Coordinator extends Role implements RegistrationService.RegistrationListener, JobService.JobListener,
@@ -26,6 +28,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     private Map<Long, jobs.Job> jobs = new HashMap<>();
     private Map<Long, List<ServiceInfo>> servicesByParticipant = new HashMap<>();
     private Map<Long, List<ServiceInfo>> servicesByJob = new HashMap<>();
+    private Map<Long, AtomicBoolean> servicesStartTag = new HashMap<>();
 
     public Coordinator(Context context, Service... services) {
         super(context, services);
@@ -59,10 +62,17 @@ public class Coordinator extends Role implements RegistrationService.Registratio
 
     @Override
     public void startServices(Job job) {
-        jobs.Job workingJob = jobs.get(job.getId());
+        servicesStartTag.put(job.getId(), new AtomicBoolean(true));
+        AtomicBoolean flag = servicesStartTag.get(job.getId());
+        if (flag.compareAndSet(true, false) && servicesByParticipant.getOrDefault(job.getId(), new ArrayList<>()).size() >= 3) {
+            startServices(job.getId());
+        }
+    }
+
+    private void startServices(long jobId) {
+        jobs.Job workingJob = jobs.get(jobId);
         List<Task> tasks = workingJob.getTasks();
-        ChannelUtil.getInstance().execute(() ->
-                tasks.forEach(this::notifyParticipantStart));
+        ChannelUtil.getInstance().execute(() -> tasks.forEach(task -> notifyParticipantStart(task, jobId)));
     }
 
     @Override
@@ -72,7 +82,8 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         workingJob.setTasks(tasks);
 //        ChannelUtil.getInstance().execute(() -> tasks.forEach(this::notifyParticipant));
         servicesByJob.put(job.getId(), new ArrayList<>());
-        ChannelUtil.getInstance().execute(() -> tasks.forEach(task -> startContainer(task, job.getId())));
+//        ChannelUtil.getInstance().execute(() -> tasks.forEach(task -> startContainer(task, job.getId())));
+        ChannelUtil.getInstance().execute(() -> startContainers(tasks, job.getId()));
         jobs.put(workingJob.getID(), workingJob);
         logger.info(TextFormat.shortDebugString(workingJob.getTasks().get(0)));
         return workingJob;
@@ -117,24 +128,65 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         }
     }
 
-    private void notifyParticipantStart(Task task) {
+    private void notifyParticipantInit(Task task, long jobId) {
         try {
             ManagedChannel channel = ChannelUtil.getInstance()
-                    .newClientChannel(task.getSelf().getAddress().getIp(), task.getSelf().getAddress().getPort());
-            TaskControllerGrpc.TaskControllerBlockingStub stub = TaskControllerGrpc.newBlockingStub(channel);
-            StartResult result = stub.start(task);
+                    .newClientChannel(task.getSelf().getAddress().getIp(), Config.SERVICE_PORT);
+            ServiceControllerGrpc.ServiceControllerBlockingStub stub = ServiceControllerGrpc.newBlockingStub(channel);
+            InitServiceResponse response = stub.init(InitServiceRequest.newBuilder()
+                    .setIngressIP(task.getIngresses(0).getAddress().getIp())
+                    .setIngressPort(Config.SERVICE_PORT).setEgressIP(task.getEgress().getAddress().getIp())
+                    .setEgressPort(Config.SERVICE_PORT).build());
+            logger.info("Service init response: " + response.getStatus().toString());
         } catch (SSLException e) {
             logger.error(e.getMessage(), e);
         }
     }
 
-    private void startContainer(Task task, long jobId) {
-        Participant participant = task.getSelf();
-        Map<String, String> env = new HashMap<>();
-        env.put("functionality", "service");
-        env.put("services", String.join(",", task.getSelf().getServicesList().stream().map(proto.hermes.Service::getName).collect(Collectors.toList())));
-        DockerManager.getInstance().startContainer(participant.getAddress().getIp(), env, "johnson163/hermes", participant.getAddress().getPort(), participant.getRoles(0).getRole());
+    private void notifyParticipantStart(Task task, long jobId) {
+        try {
+            String service = task.getService().getName();
+            ServiceInfo info = servicesByJob.get(jobId).stream().filter(serviceInfo ->
+                    serviceInfo.getName(0).equals(service)).findFirst().orElse(null);
+            ManagedChannel channel = ChannelUtil.getInstance()
+                    .newClientChannel(task.getSelf().getAddress().getIp(), Config.SERVICE_PORT);
+            ServiceControllerGrpc.ServiceControllerBlockingStub stub = ServiceControllerGrpc.newBlockingStub(channel);
+            StartServiceResponse result = stub.start(Empty.newBuilder().build());
+            logger.info("Service start response: " + result.getStatus().toString());
+        } catch (SSLException e) {
+            logger.error(e.getMessage(), e);
+        }
     }
+
+    private void startContainers(List<Task> tasks, long jobId) {
+        Map<String, List<Map<String, String>>> map = new HashMap<>();
+        map.put("consumer", new ArrayList<>());
+        map.put("producer", new ArrayList<>());
+        tasks.forEach(task -> {
+            Participant participant = task.getSelf();
+            Map<String, String> env = new HashMap<>();
+            env.put("functionality", "service");
+            env.put("services", String.join(",", task.getSelf().getServicesList().stream().map(proto.hermes.Service::getName).collect(Collectors.toList())));
+            env.put("job_id", Long.toString(jobId));
+            Map<String, String> data = DockerManager.getInstance().startContainerData(participant.getAddress().getIp(),
+                    env, "johnson163/hermes", Config.SERVICE_PORT, participant.getRoles(0).getRole());
+            String type = participant.getRoles(0).getRole().toLowerCase();
+            if (!type.equals("consumer")) {
+                type = "producer";
+            }
+            map.get(type).add(data);
+        });
+        DockerManager.getInstance().startContainer(map);
+    }
+
+//    private void startContainer(Task task, long jobId) {
+//        Participant participant = task.getSelf();
+//        Map<String, String> env = new HashMap<>();
+//        env.put("functionality", "service");
+//        env.put("services", String.join(",", task.getSelf().getServicesList().stream().map(proto.hermes.Service::getName).collect(Collectors.toList())));
+//        env.put("job_id", Long.toString(jobId));
+//        DockerManager.getInstance().startContainerData(participant.getAddress().getIp(), env, "johnson163/hermes", Config.SERVICE_PORT, participant.getRoles(0).getRole());
+//    }
 
     private void notifyParticipant(Task task) {
         try {
@@ -149,7 +201,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
 
     @Override
     public void onHeartbeat(long participantId) {
-        logger.info("Received hearth beat from: " + participantId);
+//        logger.info("Received hearth beat from: " + participantId);
     }
 
     @Override
@@ -158,5 +210,9 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         servicesByParticipant.computeIfAbsent(serviceInfo.getId(), (id) -> new ArrayList<>());
         servicesByParticipant.get(serviceInfo.getId()).add(serviceInfo);
         servicesByJob.get(serviceInfo.getJobId()).add(serviceInfo);
+        if (servicesStartTag.getOrDefault(serviceInfo.getJobId(), new AtomicBoolean()).compareAndSet(true, false)
+                && servicesByParticipant.get(serviceInfo.getJobId()).size() >= 3) {
+            startServices(serviceInfo.getJobId());
+        }
     }
 }

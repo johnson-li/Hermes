@@ -65,13 +65,13 @@ public class DockerManager {
         map.put("producer", new ArrayList<>());
         map.put("consumer", new ArrayList<>());
         //client
-        Map<String, Object> data = getInstance().startContainer("195.148.125.214", ImmutableMap.<String, String>builder().put("roles", "client").build(), "johnson163/hermes-arm", 8080, "client");
+        Map<String, String> data = getInstance().startContainerData("195.148.125.214", ImmutableMap.<String, String>builder().put("roles", "client").build(), "johnson163/hermes-arm", 8080, "client");
         map.get("producer").add(data);
         //consumer
-        data = getInstance().startContainer("195.148.125.212", ImmutableMap.<String, String>builder().put("roles", "consumer").build(), "johnson163/hermes", 8080, "consumer");
+        data = getInstance().startContainerData("195.148.125.212", ImmutableMap.<String, String>builder().put("roles", "consumer").build(), "johnson163/hermes", 8080, "consumer");
         map.get("consumer").add(data);
         //producer
-        data = getInstance().startContainer("195.148.125.213", ImmutableMap.<String, String>builder().put("roles", "producer").build(), "johnson163/hermes-arm", 8080, "producer");
+        data = getInstance().startContainerData("195.148.125.213", ImmutableMap.<String, String>builder().put("roles", "producer").build(), "johnson163/hermes-arm", 8080, "producer");
         map.get("producer").add(data);
         getInstance().socket.emit("start_containers", map);
 
@@ -85,14 +85,18 @@ public class DockerManager {
             Map<String, String> wrapped = getInstance().stopContainer(name, ip);
             terminateMap.get("common").add(wrapped);
         }
-//        getInstance().socket.emit("stop_containers", terminateMap);
+        getInstance().socket.emit("stop_containers", terminateMap);
 
         System.out.println("finished");
     }
 
-    public Map<String, Object> startContainer(String ip, Map<String, String> env, String image, int port, String type) {
+    public void startContainer(Map<String, List<Map<String, String>>> map) {
+        socket.emit("start_containers", map);
+    }
+
+    public Map<String, String> startContainerData(String ip, Map<String, String> env, String image, int port, String type) {
         logger.info(String.format("Start container in: %s, with image: %s, env: %s", ip, image, env));
-        Map<String, Object> args = new HashMap<>();
+        Map<String, String> args = new HashMap<>();
         String envString = "";
         for (String key : env.keySet()) {
             envString += String.format(" -e %s=%s", key, env.get(key));
@@ -105,10 +109,8 @@ public class DockerManager {
             args.put("ip", ip);
             envString += String.format(" -p %s:%s", port, port);
         }
-//        args.put("env", env);
         args.put("arguments", envString);
         args.put("image", image);
-//        args.put("type", type);
         return args;
     }
 
