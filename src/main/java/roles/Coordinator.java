@@ -57,11 +57,14 @@ public class Coordinator extends Role implements RegistrationService.Registratio
 
     @Override
     public void initServices(Job job) {
-
+        logger.info("init services: " + job.getId());
+        jobs.get(job.getId()).getTasks().forEach(task -> {
+        });
     }
 
     @Override
     public void startServices(Job job) {
+        logger.info("start services command: " + job.getId());
         servicesStartTag.put(job.getId(), new AtomicBoolean(true));
         AtomicBoolean flag = servicesStartTag.get(job.getId());
         if (flag.compareAndSet(true, false) && servicesByParticipant.getOrDefault(job.getId(), new ArrayList<>()).size() >= 3) {
@@ -70,6 +73,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     }
 
     private void startServices(long jobId) {
+        logger.info("start services: " + jobId);
         jobs.Job workingJob = jobs.get(jobId);
         List<Task> tasks = workingJob.getTasks();
         ChannelUtil.getInstance().execute(() -> tasks.forEach(task -> notifyParticipantStart(task, jobId)));
@@ -81,7 +85,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         List<Task> tasks = workingJob.getTasks().stream().map(this::assignParticipant).collect(Collectors.toList());
         workingJob.setTasks(tasks);
 //        ChannelUtil.getInstance().execute(() -> tasks.forEach(this::notifyParticipant));
-        servicesByJob.put(job.getId(), new ArrayList<>());
+        servicesByJob.put(workingJob.getID(), new ArrayList<>());
 //        ChannelUtil.getInstance().execute(() -> tasks.forEach(task -> startContainer(task, job.getId())));
         ChannelUtil.getInstance().execute(() -> startContainers(tasks, job.getId()));
         jobs.put(workingJob.getID(), workingJob);
@@ -97,24 +101,24 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         if (task.hasOperation()) {
             builder.setOperation(task.getOperation());
         }
-        Participant self = Participant.newBuilder().mergeFrom(getParticipant(task.getSelf().getRoles(0), "self")).build();
+        Participant self = Participant.newBuilder().mergeFrom(getParticipant(task.getSelf().getRoles(0))).build();
         builder.setSelf(self);
         if (task.getIngressesCount() > 0) {
             for (Participant oldIngress : task.getIngressesList()) {
-                Participant ingress = Participant.newBuilder().mergeFrom(getParticipant(oldIngress.getRoles(0), "ingress")).build();
+                Participant ingress = Participant.newBuilder().mergeFrom(getParticipant(oldIngress.getRoles(0))).build();
                 builder.addIngresses(ingress);
             }
         }
         if (task.hasEgress()) {
-            Participant egress = Participant.newBuilder().mergeFrom(getParticipant(task.getEgress().getRoles(0), "egress")).build();
+            Participant egress = Participant.newBuilder().mergeFrom(getParticipant(task.getEgress().getRoles(0))).build();
             builder.setEgress(egress);
         }
         return builder.build();
     }
 
-    private Participant getParticipant(proto.hermes.Role role, String character) {
+    private Participant getParticipant(proto.hermes.Role role) {
         return participants.values().stream().filter(participant -> participant.getRolesList().stream().anyMatch(r ->
-                r.getRole().equals(role.getRole()))).findFirst().orElse(null);
+                r.getRole().toLowerCase().equals(role.getRole().toLowerCase()))).findFirst().orElse(null);
     }
 
     private void notifyParticipantStop(Task task) {

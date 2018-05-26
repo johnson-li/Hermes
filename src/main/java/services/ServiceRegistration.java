@@ -6,6 +6,7 @@ import proto.hermes.ServiceInfo;
 import proto.hermes.ServiceRegistrationGrpc;
 import proto.hermes.Status;
 
+@DefaultRun
 public class ServiceRegistration extends ServiceRegistrationGrpc.ServiceRegistrationImplBase implements Service {
     private final ServiceListener listener;
 
@@ -14,7 +15,7 @@ public class ServiceRegistration extends ServiceRegistrationGrpc.ServiceRegistra
     }
 
     @Override
-    public void register(ServiceInfo request, StreamObserver<RegistrationResponse> responseObserver) {
+    public void registerService(ServiceInfo request, StreamObserver<RegistrationResponse> responseObserver) {
         listener.onRegister(request);
         responseObserver.onNext(RegistrationResponse.newBuilder().setStatus(Status.SUCCESS).build());
     }

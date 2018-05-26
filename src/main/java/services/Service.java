@@ -14,6 +14,7 @@ public interface Service extends BindableService {
      * Initiate the service, usually start some background threads.
      */
     default void init() {
+        System.out.println("Init service: " + getClass().getSimpleName());
     }
 
     /**

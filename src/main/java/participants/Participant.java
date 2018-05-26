@@ -28,6 +28,7 @@ public class Participant extends Context {
     private int port;
     private String host;
     private Server server;
+
     public Participant(String host, int port, long id) {
         super(id);
         this.host = host;

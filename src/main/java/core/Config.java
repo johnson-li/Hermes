@@ -17,10 +17,10 @@ public class Config {
     public static String HOST = "127.0.0.1";
     public static int PORT = 5555;
     public static int SERVICE_PORT = 5556;
-    public static int RUNNING_TIME = 20000;
+    public static int RUNNING_TIME = 300000;
     public static long ID;
     public static Functionality FUNCTIONALITY = Functionality.MANAGEMENT;
-    public static String MANAGEMENT_IP = "127.0.0.1";
+    public static String MANAGEMENT_IP = "10.20.30.100";
     public static long JOB_ID;
 
     static {

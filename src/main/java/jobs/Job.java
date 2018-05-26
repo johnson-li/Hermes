@@ -3,10 +3,10 @@ package jobs;
 import proto.hermes.Task;
 
 import java.util.List;
-import java.util.UUID;
 
 public abstract class Job {
-    private final long ID = UUID.randomUUID().getMostSignificantBits();
+    //    private final long ID = UUID.randomUUID().getMostSignificantBits();
+    private final long ID = 12345;
 
     public static <T extends Job> String getJobName(Class<T> clazz) {
         return clazz.getSimpleName();

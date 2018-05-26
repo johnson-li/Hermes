@@ -85,3 +85,18 @@ message Identification {
     repeated Role roles = 2;
     string ip = 3;
 }
+
+service ServiceRegistration {
+    rpc RegisterService (ServiceInfo) returns (RegistrationResponse) {
+    }
+}
+
+message ServiceInfo {
+    int64 id = 1;
+    int64 jobId = 2;
+    repeated string name = 3;
+}
+
+message RegistrationResponse {
+    Status status = 1;
+}

@@ -45,17 +45,3 @@ message WebrtcResponse {
     Status status = 1;
 }
 
-service ServiceRegistration {
-    rpc Register (ServiceInfo) returns (RegistrationResponse) {
-    }
-}
-
-message ServiceInfo {
-    int64 id = 1;
-    int64 jobId = 2;
-    repeated string name = 3;
-}
-
-message RegistrationResponse {
-    Status status = 1;
-}
