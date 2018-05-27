@@ -196,6 +196,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
             env.put("functionality", "service");
             env.put("services", String.join(",", task.getSelf().getServicesList().stream().map(proto.hermes.Service::getName).collect(Collectors.toList())));
             env.put("job_id", Long.toString(jobId));
+            env.put("host", task.getSelf().getAddress().getIp()); // The service and the management has the same IP address to the outside
             Map<String, String> data = DockerManager.getInstance().startContainerData(participant.getAddress().getIp(),
                     env, "johnson163/hermes", Config.SERVICE_PORT, participant.getRoles(0).getRole());
             String type = participant.getRoles(0).getRole().toLowerCase();

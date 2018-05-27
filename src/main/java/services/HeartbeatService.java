@@ -1,6 +1,5 @@
 package services;
 
-import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import proto.hermes.HeartbeatGrpc;
 import proto.hermes.HeartbeatRequest;

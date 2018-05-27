@@ -102,6 +102,7 @@ public class ManagementStarter {
     }
 
     private void await() throws InterruptedException {
+        logger.info("Await");
         participant.await();
     }
 }

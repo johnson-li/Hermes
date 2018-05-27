@@ -70,6 +70,7 @@ public class ServiceStarter {
     }
 
     private void await() throws InterruptedException {
+        logger.info("Await");
         server.awaitTermination();
     }
 
@@ -99,6 +100,7 @@ public class ServiceStarter {
             @Override
             public void onNext(Identification identification) {
                 logger.info("Got identification " + TextFormat.shortDebugString(identification));
+                host = identification.getIp();
 
                 // Register to the coordinator
                 ServiceRegistrationGrpc.ServiceRegistrationStub registrationStub =
