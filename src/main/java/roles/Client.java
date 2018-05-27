@@ -32,22 +32,32 @@ public class Client extends Role implements TaskListener {
             @Override
             public void onNext(InitJobResult value) {
                 jobId = value.getId();
-                jobListener.onInit(value);
+                jobListener.onInit(Client.this, value);
             }
         });
     }
 
-    public void startJob() {
+    public void startJob(JobListener jobListener) {
         logger.info("Start job");
-        JobManagerGrpc.JobManagerBlockingStub stub = JobManagerGrpc.newBlockingStub(getChannel());
-        StartJobResult result = stub.startJob(Job.newBuilder().setId(jobId).build());
-        logger.info("Job start result: " + result.getStatus());
+        JobManagerGrpc.JobManagerStub stub = JobManagerGrpc.newStub(getChannel());
+        stub.startJob(Job.newBuilder().setId(jobId).build(), new SimpleStreamObserver<StartJobResult>() {
+            @Override
+            public void onNext(StartJobResult result) {
+                logger.info("Job start result: " + result.getStatus());
+                jobListener.onStart(Client.this, result);
+            }
+        });
     }
 
-    public void finishJob() {
+    public void finishJob(JobListener jobListener) {
         logger.info("Finish job");
-        JobManagerGrpc.JobManagerBlockingStub stub = JobManagerGrpc.newBlockingStub(getChannel());
-        FinishJobResult result = stub.finishJob(Job.newBuilder().setId(jobId).build());
-        logger.info("Job stop result: " + result.getStatus());
+        JobManagerGrpc.JobManagerStub stub = JobManagerGrpc.newStub(getChannel());
+        stub.finishJob(Job.newBuilder().setId(jobId).build(), new SimpleStreamObserver<FinishJobResult>() {
+            @Override
+            public void onNext(FinishJobResult result) {
+                logger.info("Job stop result: " + result.getStatus());
+                jobListener.onFinish(Client.this, result);
+            }
+        });
     }
 }

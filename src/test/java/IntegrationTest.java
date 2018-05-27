@@ -3,11 +3,15 @@ import core.ManagementStarter;
 import core.ServiceStarter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import proto.hermes.FinishJobResult;
+import proto.hermes.InitJobResult;
+import proto.hermes.StartJobResult;
 import roles.Client;
 import roles.Consumer;
 import roles.Coordinator;
 import roles.Producer;
 import services.EchoService;
+import services.JobListener;
 import services.PrintService;
 import services.RandomGenerator;
 
@@ -21,6 +25,7 @@ public class IntegrationTest {
         Config.PREPARATION_TIME = -1;
         Config.SERVICES.add(EchoService.class.getSimpleName());
         Config.JOB_ID = 12345;
+        Config.AUTO_PLAY = false;
     }
 
     private Logger logger = LoggerFactory.getLogger(IntegrationTest.class);
@@ -58,16 +63,35 @@ public class IntegrationTest {
         ServiceStarter producerService = new ServiceStarter();
         ServiceStarter consumerService = new ServiceStarter();
 
-        clientService.initServices(RandomGenerator.class);
+        clientService.initServices(PrintService.class);
         consumerService.initServices(EchoService.class);
-        producerService.initServices(PrintService.class);
+        producerService.initServices(RandomGenerator.class);
         clientService.managementPort = client.port;
         producerService.managementPort = producer.port;
         consumerService.managementPort = consumer.port;
         clientService.servicePort = 50001;
         producerService.servicePort = 50002;
         consumerService.servicePort = 50003;
-        logger.info("Start services");
+
+        logger.info("Ready to send requests");
+        client.sendRequest(new JobListener() {
+            @Override
+            public void onInit(Client client, InitJobResult result) {
+                client.startJob(this);
+            }
+
+            @Override
+            public void onStart(Client client, StartJobResult result) {
+                logger.info("started");
+            }
+
+            @Override
+            public void onFinish(Client client, FinishJobResult result) {
+            }
+        });
+
+        Thread.sleep(3000);
+        logger.info("Start service containers");
         clientService.start();
         producerService.start();
         consumerService.start();

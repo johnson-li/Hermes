@@ -23,6 +23,7 @@ public class Config {
     public static Functionality FUNCTIONALITY = Functionality.MANAGEMENT;
     public static String MANAGEMENT_IP = "10.20.30.100";
     public static long JOB_ID;
+    public static boolean AUTO_PLAY = true;
 
     static {
         try {
@@ -81,6 +82,10 @@ public class Config {
         String jobID = System.getenv("job_id");
         if (valid(jobID)) {
             JOB_ID = Long.valueOf(jobID);
+        }
+        String autoPlay = System.getenv("auto_play");
+        if (valid(autoPlay)) {
+            AUTO_PLAY = Boolean.valueOf(autoPlay);
         }
     }
 

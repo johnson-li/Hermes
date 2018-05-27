@@ -44,7 +44,7 @@ public class ServiceStarter {
                     logger.info("Listen on: " + TextFormat.shortDebugString(request.getIngress()));
                     ManagedChannel ingressChannel = ChannelUtil.getInstance()
                             .newClientChannel(request.getIngress().getIp(), request.getIngress().getPort());
-                    services.forEach(service -> service.listen(ingressChannel));
+                    ChannelUtil.getInstance().execute(() -> services.forEach(service -> service.listen(ingressChannel)));
                 }
             } catch (SSLException e) {
                 logger.error(e.getMessage(), e);
