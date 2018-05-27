@@ -12,7 +12,7 @@ ssh pi2 'cd /home/pi/MEC; git pull; ./docker-clean.sh'
 ssh workstation 'cd /home/lix16/MEC; git pull; ./docker-clean.sh'
 ssh lab3 'cd /home/lix16/MEC; git pull; ./docker-clean.sh'
 
-echo '===== create networks ====='
+echo '====== create networks ======'
 ssh pi1 'docker network create --subnet=10.20.30.0/24 hermes 2> /dev/null'
 ssh pi2 'docker network create --subnet=10.20.30.0/24 hermes 2> /dev/null'
 ssh workstation 'docker network create --subnet=10.20.30.0/24 hermes 2> /dev/null'
@@ -55,6 +55,6 @@ echo '====== start the producer and the consumer ======'
 ssh pi1 '/home/pi/init.sh'
 ssh workstation '/home/lix16/init.sh'
 
-sleep 20
+sleep 5
 echo '====== start the client ======'
 ssh pi2 '/home/pi/init.sh'

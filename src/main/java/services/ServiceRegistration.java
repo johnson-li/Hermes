@@ -18,5 +18,6 @@ public class ServiceRegistration extends ServiceRegistrationGrpc.ServiceRegistra
     public void registerService(ServiceInfo request, StreamObserver<RegistrationResponse> responseObserver) {
         listener.onRegister(request);
         responseObserver.onNext(RegistrationResponse.newBuilder().setStatus(Status.SUCCESS).build());
+        responseObserver.onCompleted();
     }
 }

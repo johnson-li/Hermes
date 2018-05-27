@@ -1,5 +1,6 @@
 package core;
 
+import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import participants.Participant;
@@ -9,17 +10,29 @@ import roles.Consumer;
 import roles.Coordinator;
 import roles.Producer;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class ManagementStarter {
     private static Logger logger = LoggerFactory.getLogger(ManagementStarter.class);
+    @VisibleForTesting
+    public String host = Config.HOST;
+    @VisibleForTesting
+    public int port = Config.PORT;
+    @VisibleForTesting
+    public List<String> roles = new ArrayList<>();
+    private Participant participant;
 
     public static void main(String[] args) throws Exception {
-        new ManagementStarter().start();
+        ManagementStarter starter = new ManagementStarter();
+        starter.start();
+        starter.await();
     }
 
     public void start() throws Exception {
         logger.info("Starting...");
-        Participant participant = new Participant(Config.HOST, Config.PORT);
-        for (String str : Config.ROLES) {
+        participant = new Participant(host, port);
+        for (String str : roles) {
             switch (str) {
                 case "producer":
                     participant.addRoles(new Producer(participant));
@@ -46,18 +59,28 @@ public class ManagementStarter {
         }
 
         // Start the requests
-        participant.delegate(Client.class).ifPresent(client -> {
-            client.initJob();
-            client.startJob();
+        participant.delegate(Client.class).ifPresent(client -> client.initJob(result -> {
+                    try {
+                        if (Config.PREPARATION_TIME > 0) {
+                            Thread.sleep(Config.PREPARATION_TIME);
+                        }
+                    } catch (InterruptedException e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                    client.startJob();
+                    try {
+                        if (Config.RUNNING_TIME > 0) {
+                            Thread.sleep(Config.RUNNING_TIME);
+                            client.finishJob();
+                        }
+                    } catch (InterruptedException e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                })
+        );
+    }
 
-            try {
-                Thread.sleep(Config.RUNNING_TIME);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-            }
-
-            client.finishJob();
-        });
+    private void await() throws InterruptedException {
         participant.await();
     }
 }

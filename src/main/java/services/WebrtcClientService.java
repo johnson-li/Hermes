@@ -34,21 +34,6 @@ public class WebrtcClientService implements Service {
     }
 
     @Override
-    public void init() {
-
-    }
-
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
-
-    @Override
     public proto.hermes.Service getService() {
         return proto.hermes.Service.newBuilder().setName(getName()).setProtocol(Protocol.WebRTC).build();
     }

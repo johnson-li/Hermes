@@ -51,11 +51,6 @@ public class EchoService extends EchoGrpc.EchoImplBase implements Service {
     }
 
     @Override
-    public void init() {
-
-    }
-
-    @Override
     public void start() {
         interrupted = false;
         ChannelUtil.getInstance().execute(this::run, 2000);

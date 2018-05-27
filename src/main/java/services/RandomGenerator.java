@@ -32,15 +32,6 @@ public class RandomGenerator extends RandomGeneratorGrpc.RandomGeneratorImplBase
     }
 
     @Override
-    public void init() {
-
-    }
-
-    @Override
-    public void listen(ManagedChannel channel) {
-    }
-
-    @Override
     public void start() {
         logger.info("Start random generator");
         interrupted = false;

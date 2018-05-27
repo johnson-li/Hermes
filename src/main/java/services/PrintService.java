@@ -13,21 +13,6 @@ public class PrintService implements Service {
     private static Logger logger = LoggerFactory.getLogger(PrintService.class);
 
     @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void init() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
-
-    @Override
     public void listen(ManagedChannel channel) {
         EchoGrpc.EchoStub stub = EchoGrpc.newStub(channel);
         stub.echo(EchoRequest.newBuilder().build(), new StreamObserver<EchoResponse>() {

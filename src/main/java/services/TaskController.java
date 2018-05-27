@@ -44,24 +44,4 @@ public class TaskController extends TaskControllerGrpc.TaskControllerImplBase im
         responseObserver.onNext(AssignResult.newBuilder().setStatus(Status.SUCCESS).build());
         responseObserver.onCompleted();
     }
-
-    @Override
-    public void listen(ManagedChannel channel) {
-
-    }
-
-    @Override
-    public void init() {
-
-    }
-
-    @Override
-    public void start() {
-
-    }
-
-    @Override
-    public void stop() {
-
-    }
 }

@@ -29,11 +29,6 @@ message Participant {
     NetAddress address = 4;
 }
 
-message NetAddress {
-    string ip = 1;
-    int32 port = 2;
-}
-
 message Role {
     string role = 1;
 }
@@ -95,6 +90,7 @@ message ServiceInfo {
     int64 id = 1;
     int64 jobId = 2;
     repeated string name = 3;
+    NetAddress address =4;
 }
 
 message RegistrationResponse {

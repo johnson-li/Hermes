@@ -1,5 +1,6 @@
 package roles;
 
+import com.google.common.base.Preconditions;
 import com.google.protobuf.TextFormat;
 import core.Config;
 import core.Context;
@@ -28,7 +29,9 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     private Map<Long, jobs.Job> jobs = new HashMap<>();
     private Map<Long, List<ServiceInfo>> servicesByParticipant = new HashMap<>();
     private Map<Long, List<ServiceInfo>> servicesByJob = new HashMap<>();
-    private Map<Long, AtomicBoolean> servicesStartTag = new HashMap<>();
+    private Map<Long, AtomicBoolean> servicesInitTag = new HashMap<>();
+    private ServiceRegistration serviceRegistration = new ServiceRegistration(this);
+    private JobService jobService = new JobService(this);
 
     public Coordinator(Context context, Service... services) {
         super(context, services);
@@ -36,8 +39,8 @@ public class Coordinator extends Role implements RegistrationService.Registratio
 
     @Override
     public void init() {
-        addServices(new RegistrationService(this), new JobService(this),
-                new HeartbeatService(this), new WebrtcServer(), new ServiceRegistration(this));
+        addServices(new RegistrationService(this), jobService,
+                new HeartbeatService(this), new WebrtcServer(), serviceRegistration);
         super.init();
     }
 
@@ -48,31 +51,33 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     }
 
     @Override
-    public void stopServices(Job job) {
-        jobs.Job workingJob = jobs.get(job.getId());
+    public void stopServices(long jobId) {
+        jobs.Job workingJob = jobs.get(jobId);
         List<Task> tasks = workingJob.getTasks();
         ChannelUtil.getInstance().execute(() ->
                 tasks.forEach(this::notifyParticipantStop));
     }
 
     @Override
-    public void initServices(Job job) {
-        logger.info("init services: " + job.getId());
-        jobs.get(job.getId()).getTasks().forEach(task -> {
-        });
-    }
-
-    @Override
-    public void startServices(Job job) {
-        logger.info("start services command: " + job.getId());
-        servicesStartTag.put(job.getId(), new AtomicBoolean(true));
-        AtomicBoolean flag = servicesStartTag.get(job.getId());
-        if (flag.compareAndSet(true, false) && servicesByParticipant.getOrDefault(job.getId(), new ArrayList<>()).size() >= 3) {
-            startServices(job.getId());
+    public void initServices(long jobId) {
+        logger.info("init services command: " + jobId);
+        servicesInitTag.put(jobId, new AtomicBoolean(true));
+        AtomicBoolean flag = servicesInitTag.get(jobId);
+        if (servicesByJob.getOrDefault(jobId, new ArrayList<>()).size() >= 3) {
+            if (flag.compareAndSet(true, false)) {
+                initServices0(jobId);
+            }
         }
     }
 
-    private void startServices(long jobId) {
+    private void initServices0(long jobId) {
+        logger.info("init services: " + jobId);
+        jobs.get(jobId).getTasks().forEach(task -> notifyParticipantInit(task, jobId));
+        jobService.finishInitJob(jobId);
+    }
+
+    @Override
+    public void startServices(long jobId) {
         logger.info("start services: " + jobId);
         jobs.Job workingJob = jobs.get(jobId);
         List<Task> tasks = workingJob.getTasks();
@@ -83,11 +88,12 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     public jobs.Job buildTasks(Job job) {
         jobs.Job workingJob = JobManager.getInstance().getByName(job.getName());
         List<Task> tasks = workingJob.getTasks().stream().map(this::assignParticipant).collect(Collectors.toList());
+        tasks.forEach(task -> logger.info("Job task: " + TextFormat.shortDebugString(task)));
         workingJob.setTasks(tasks);
 //        ChannelUtil.getInstance().execute(() -> tasks.forEach(this::notifyParticipant));
         servicesByJob.put(workingJob.getID(), new ArrayList<>());
 //        ChannelUtil.getInstance().execute(() -> tasks.forEach(task -> startContainer(task, job.getId())));
-        ChannelUtil.getInstance().execute(() -> startContainers(tasks, job.getId()));
+        ChannelUtil.getInstance().execute(() -> startContainers(tasks, workingJob.getID()));
         jobs.put(workingJob.getID(), workingJob);
         logger.info(TextFormat.shortDebugString(workingJob.getTasks().get(0)));
         return workingJob;
@@ -133,15 +139,33 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     }
 
     private void notifyParticipantInit(Task task, long jobId) {
+        logger.info("Notify participant init: " + TextFormat.shortDebugString(task));
+        Preconditions.checkNotNull(task);
         try {
-            ManagedChannel channel = ChannelUtil.getInstance()
-                    .newClientChannel(task.getSelf().getAddress().getIp(), Config.SERVICE_PORT);
+            ServiceInfo info = servicesByJob.get(jobId).stream().filter(serviceInfo ->
+                    serviceInfo.getNameList().get(0).toLowerCase().equals(task.getService().getName().toLowerCase()))
+                    .findFirst().orElse(null);
+            String serviceIP = info.getAddress().getIp();
+            int servicePort = info.getAddress().getPort();
+            ManagedChannel channel = ChannelUtil.getInstance().newClientChannel(serviceIP, servicePort);
             ServiceControllerGrpc.ServiceControllerBlockingStub stub = ServiceControllerGrpc.newBlockingStub(channel);
-            InitServiceResponse response = stub.init(InitServiceRequest.newBuilder()
-                    .setIngressIP(task.getIngresses(0).getAddress().getIp())
-                    .setIngressPort(Config.SERVICE_PORT).setEgressIP(task.getEgress().getAddress().getIp())
-                    .setEgressPort(Config.SERVICE_PORT).build());
-            logger.info("Service init response: " + response.getStatus().toString());
+            InitServiceRequest.Builder builder = InitServiceRequest.newBuilder();
+            if (task.getIngressesCount() > 0) {
+                ServiceInfo ingressInfo = servicesByParticipant.get(task.getIngresses(0).getId()).stream()
+                        .filter(serviceInfo -> serviceInfo.getJobId() == jobId).findFirst().get();
+                builder.setIngress(NetAddress.newBuilder().setIp(ingressInfo.getAddress().getIp())
+                        .setPort(ingressInfo.getAddress().getPort()).build());
+            }
+            if (task.getEgress() != null && task.getEgress().getId() != 0) {
+                ServiceInfo egressInfo = servicesByParticipant.get(task.getEgress().getId()).stream()
+                        .filter(serviceInfo -> serviceInfo.getJobId() == jobId).findFirst().get();
+                builder.setEgress(NetAddress.newBuilder().setIp(egressInfo.getAddress().getIp())
+                        .setPort(egressInfo.getAddress().getPort()).build());
+            }
+            InitServiceRequest request = builder.build();
+            logger.info("Init service request: " + TextFormat.shortDebugString(request));
+            InitServiceResponse response = stub.init(request);
+            logger.info("Service init response: " + TextFormat.shortDebugString(response));
         } catch (SSLException e) {
             logger.error(e.getMessage(), e);
         }
@@ -153,10 +177,10 @@ public class Coordinator extends Role implements RegistrationService.Registratio
             ServiceInfo info = servicesByJob.get(jobId).stream().filter(serviceInfo ->
                     serviceInfo.getName(0).equals(service)).findFirst().orElse(null);
             ManagedChannel channel = ChannelUtil.getInstance()
-                    .newClientChannel(task.getSelf().getAddress().getIp(), Config.SERVICE_PORT);
+                    .newClientChannel(info.getAddress().getIp(), info.getAddress().getPort());
             ServiceControllerGrpc.ServiceControllerBlockingStub stub = ServiceControllerGrpc.newBlockingStub(channel);
             StartServiceResponse result = stub.start(Empty.newBuilder().build());
-            logger.info("Service start response: " + result.getStatus().toString());
+            logger.info("Service start response: " + result.getStatus().toString() + ", on " + TextFormat.shortDebugString(task.getSelf()));
         } catch (SSLException e) {
             logger.error(e.getMessage(), e);
         }
@@ -210,13 +234,14 @@ public class Coordinator extends Role implements RegistrationService.Registratio
 
     @Override
     public void onRegister(ServiceInfo serviceInfo) {
-        logger.info("On service registered: " + serviceInfo.getNameList() + ", from: " + serviceInfo.getId());
+        logger.info("On service registered: " + TextFormat.shortDebugString(serviceInfo));
         servicesByParticipant.computeIfAbsent(serviceInfo.getId(), (id) -> new ArrayList<>());
         servicesByParticipant.get(serviceInfo.getId()).add(serviceInfo);
         servicesByJob.get(serviceInfo.getJobId()).add(serviceInfo);
-        if (servicesStartTag.getOrDefault(serviceInfo.getJobId(), new AtomicBoolean()).compareAndSet(true, false)
-                && servicesByParticipant.get(serviceInfo.getJobId()).size() >= 3) {
-            startServices(serviceInfo.getJobId());
+        if (servicesByJob.get(serviceInfo.getJobId()).size() >= 3) {
+            if (servicesInitTag.getOrDefault(serviceInfo.getJobId(), new AtomicBoolean()).compareAndSet(true, false)) {
+                initServices0(serviceInfo.getJobId());
+            }
         }
     }
 }

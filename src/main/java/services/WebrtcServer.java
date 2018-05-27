@@ -1,6 +1,5 @@
 package services;
 
-import io.grpc.ManagedChannel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proto.hermes.Protocol;
@@ -13,11 +12,6 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
     private static Logger logger = LoggerFactory.getLogger(WebrtcServer.class);
     private Process process;
     private ProcessReader reader;
-
-    @Override
-    public void listen(ManagedChannel channel) {
-
-    }
 
     @Override
     public void init() {
@@ -34,10 +28,6 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-    }
-
-    @Override
-    public void start() {
     }
 
     @Override

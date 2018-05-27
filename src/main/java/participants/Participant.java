@@ -50,6 +50,7 @@ public class Participant extends Context {
     }
 
     public void start() throws IOException, CertificateException {
+        logger.info("Start server on: " + port + ", as: " + roles.stream().map(Role::getRoleName).collect(Collectors.toList()));
         SelfSignedCertificate ssc = new SelfSignedCertificate();
         ServerBuilder builder = ServerBuilder.forPort(port).useTransportSecurity(ssc.certificate(), ssc.privateKey());
         logger.info("Roles: " + String.join(", ", roles.stream().map(Role::getRoleName).collect(Collectors.toList())));

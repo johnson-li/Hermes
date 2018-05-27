@@ -84,11 +84,6 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
     }
 
     @Override
-    public void init() {
-
-    }
-
-    @Override
     public proto.hermes.Service getService() {
         return proto.hermes.Service.newBuilder().setName(getName()).setProtocol(Protocol.WebRTC).build();
     }

@@ -17,7 +17,8 @@ public class Config {
     public static String HOST = "127.0.0.1";
     public static int PORT = 5555;
     public static int SERVICE_PORT = 5556;
-    public static int RUNNING_TIME = 300000;
+    public static int RUNNING_TIME = 1800000;
+    public static int PREPARATION_TIME = 10000;
     public static long ID;
     public static Functionality FUNCTIONALITY = Functionality.MANAGEMENT;
     public static String MANAGEMENT_IP = "10.20.30.100";
@@ -56,6 +57,10 @@ public class Config {
         String runningTime = System.getenv("running_time");
         if (valid(runningTime)) {
             RUNNING_TIME = Integer.valueOf(runningTime);
+        }
+        String preparationTime = System.getenv("preparation_time");
+        if (valid(preparationTime)) {
+            PREPARATION_TIME = Integer.valueOf(preparationTime);
         }
         String id = System.getenv("id");
         if (valid(id)) {
