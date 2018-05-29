@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 /etc/init.d/dbus start
-pulseaudio --start
+pulseaudio -D
 
 cd "$(dirname "$0")"
 cd ..

@@ -1,5 +1,7 @@
 package core;
 
+import jobs.EchoJob;
+import jobs.Job;
 import participants.Functionality;
 
 import java.net.Inet4Address;
@@ -21,9 +23,10 @@ public class Config {
     public static int PREPARATION_TIME = 10000;
     public static long ID;
     public static Functionality FUNCTIONALITY = Functionality.MANAGEMENT;
-    public static String MANAGEMENT_IP = "10.20.30.100";
+    public static String MANAGEMENT_IP = "127.0.0.1";
     public static long JOB_ID;
     public static boolean AUTO_PLAY = true;
+    public static String JOB = Job.getJobName(EchoJob.class);
 
     static {
         try {
@@ -86,6 +89,10 @@ public class Config {
         String autoPlay = System.getenv("auto_play");
         if (valid(autoPlay)) {
             AUTO_PLAY = Boolean.valueOf(autoPlay);
+        }
+        String job = System.getenv("job");
+        if (valid(job)) {
+            JOB = job;
         }
     }
 

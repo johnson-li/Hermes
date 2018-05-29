@@ -8,6 +8,7 @@ import utils.ProcessReader;
 
 import java.io.IOException;
 
+@DefaultRun
 public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implements Service {
     private static Logger logger = LoggerFactory.getLogger(WebrtcServer.class);
     private Process process;

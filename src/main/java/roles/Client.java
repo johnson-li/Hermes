@@ -1,7 +1,7 @@
 package roles;
 
+import core.Config;
 import core.Context;
-import jobs.EchoJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proto.hermes.*;
@@ -28,7 +28,7 @@ public class Client extends Role implements TaskListener {
     public void initJob(JobListener jobListener) {
         logger.info("Init job");
         JobManagerGrpc.JobManagerStub stub = JobManagerGrpc.newStub(getChannel());
-        stub.initJob(Job.newBuilder().setName(jobs.Job.getJobName(EchoJob.class)).build(), new SimpleStreamObserver<InitJobResult>() {
+        stub.initJob(Job.newBuilder().setName(Config.JOB).build(), new SimpleStreamObserver<InitJobResult>() {
             @Override
             public void onNext(InitJobResult value) {
                 jobId = value.getId();

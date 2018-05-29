@@ -1,7 +1,7 @@
 FROM java:8-jdk
 
 RUN apt-get update
-RUN apt-get install -y pulseaudio consolekit iputils-ping
+RUN apt-get install -y bsdmainutils pulseaudio consolekit iputils-ping gdb
 
 WORKDIR /hermes
 COPY bin/webrtc bin/webrtc

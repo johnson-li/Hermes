@@ -1,7 +1,6 @@
 package services;
 
 import core.Config;
-import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,11 +33,6 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
         observer = responseObserver;
     }
 
-    @Override
-    public void listen(ManagedChannel channel) {
-
-    }
-
     public void setRemotePeer(String remotePeer) {
         this.remotePeer = remotePeer;
     }
@@ -46,9 +40,6 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
     @Override
     public void start() {
         // Disable webrtc client
-        if (true) {
-            return;
-        }
         List<String> commands = new ArrayList<>();
         commands.add("/hermes/bin/webrtc/peerconnection_client_terminal");
         Map<String, String> env = new HashMap<>();
