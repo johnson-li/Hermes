@@ -2,6 +2,8 @@
 
 /etc/init.d/dbus start
 pulseaudio -D
+mkdir -p /tmp/webrtc
+mkdir -p /tmp/detection
 
 cd "$(dirname "$0")"
 cd ..
