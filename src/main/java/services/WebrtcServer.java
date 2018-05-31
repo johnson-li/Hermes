@@ -5,6 +5,7 @@ import org.slf4j.LoggerFactory;
 import proto.hermes.Protocol;
 import proto.hermes.WebrtcServerGrpc;
 import utils.ProcessReader;
+import utils.ThreadUtils;
 
 import java.io.IOException;
 
@@ -21,8 +22,9 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
             logger.warn("Disable webrtc in the development environment");
             return;
         }
+        String cmd = "/hermes/bin/webrtc/peerconnection_server";
+        reader = ProcessReader.read(cmd);
         try {
-            String cmd = "/hermes/bin/webrtc/peerconnection_server";
             process = Runtime.getRuntime().exec(cmd);
             reader = new ProcessReader(process);
             reader.start();
@@ -38,13 +40,7 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
 
     @Override
     public void stop() {
-        if (reader != null && reader.isAlive()) {
-            reader.interrupt();
-            reader = null;
-        }
-        if (process != null && process.isAlive()) {
-            process.destroy();
-            process = null;
-        }
+        reader = ThreadUtils.stop(reader);
+        process = ThreadUtils.stop(process);
     }
 }

@@ -1,7 +1,7 @@
 package core;
 
-import jobs.EchoJob;
 import jobs.Job;
+import jobs.VideoJob;
 import participants.Functionality;
 
 import java.net.Inet4Address;
@@ -26,7 +26,7 @@ public class Config {
     public static String MANAGEMENT_IP = "127.0.0.1";
     public static long JOB_ID;
     public static boolean AUTO_PLAY = true;
-    public static String JOB = Job.getJobName(EchoJob.class);
+    public static String JOB = Job.getJobName(VideoJob.class);
 
     static {
         try {

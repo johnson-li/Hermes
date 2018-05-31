@@ -8,6 +8,7 @@ import roles.Client;
 import roles.Consumer;
 import roles.Producer;
 import services.WebrtcClientService;
+import services.WebrtcReceiverService;
 import services.WebrtcSenderService;
 
 import java.util.ArrayList;
@@ -25,7 +26,7 @@ public class VideoJob extends Job {
                     .setEgress(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Consumer.class.getSimpleName()).build()).build())
                     .build());
             tasks.add(Task.newBuilder()
-                    .setService(Service.newBuilder().setName(WebrtcSenderService.class.getSimpleName()).build())
+                    .setService(Service.newBuilder().setName(WebrtcReceiverService.class.getSimpleName()).build())
                     .setSelf(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Consumer.class.getSimpleName()).build()).build())
                     .addIngresses(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Producer.class.getSimpleName()).build()).build())
                     .setEgress(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Client.class.getSimpleName()).build()).build())

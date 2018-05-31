@@ -4,6 +4,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
 
 public class ProcessReader extends Thread {
     private static Logger logger = LoggerFactory.getLogger(ProcessReader.class);
@@ -12,6 +14,31 @@ public class ProcessReader extends Thread {
 
     public ProcessReader(Process process) {
         this.process = process;
+    }
+
+    public static ProcessReader read(String commands) {
+        return read(Collections.singletonList(commands));
+    }
+
+    public static ProcessReader read(List<String> commands) {
+        try {
+            Process process = new ProcessBuilder(commands).start();
+            return read(process);
+        } catch (IOException e) {
+            logger.error(e.getMessage(), e);
+        }
+        return null;
+    }
+
+    static ProcessReader read(Process process) {
+        ProcessReader reader;
+        reader = new ProcessReader(process);
+        reader.start();
+        return reader;
+    }
+
+    public Process getProcess() {
+        return process;
     }
 
     @Override

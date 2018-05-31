@@ -1,11 +1,11 @@
 package services;
 
 import core.Config;
-import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import proto.hermes.*;
+import proto.hermes.Protocol;
 import utils.ProcessReader;
+import utils.ThreadUtils;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,24 +13,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Service {
+public class WebrtcSenderService implements Service {
     static Logger logger = LoggerFactory.getLogger(WebrtcSenderService.class);
     private final long id;
     private final boolean sendOnly;
     private String remotePeer = "";
     private Process process;
     private ProcessReader reader;
-    private StreamObserver<WebrtcResponse> observer;
-    private Thread workerThread;
 
     public WebrtcSenderService(long id, boolean sendOnly) {
         this.id = id;
         this.sendOnly = sendOnly;
-    }
-
-    @Override
-    public void webrtc(WebrtcInfo request, StreamObserver<WebrtcResponse> responseObserver) {
-        observer = responseObserver;
     }
 
     public void setRemotePeer(String remotePeer) {
@@ -59,19 +52,7 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
         } catch (IOException e) {
             logger.error(e.getMessage());
         }
-        workerThread = new Thread(() -> {
-            while (!Thread.currentThread().isInterrupted()) {
-                if (observer != null) {
-                    observer.onNext(WebrtcResponse.newBuilder().setStatus(Status.SUCCESS).build());
-                }
-                try {
-                    Thread.sleep(10000);
-                } catch (InterruptedException e) {
-                    logger.error(e.getMessage(), e);
-                }
-            }
-        });
-        workerThread.start();
+
     }
 
     @Override
@@ -81,17 +62,7 @@ public class WebrtcSenderService extends WebrtcGrpc.WebrtcImplBase implements Se
 
     @Override
     public void stop() {
-        if (process != null && process.isAlive()) {
-            process.destroy();
-            process = null;
-        }
-        if (reader != null && reader.isAlive()) {
-            reader.interrupt();
-            reader = null;
-        }
-        if (workerThread != null && workerThread.isAlive()) {
-            workerThread.interrupt();
-            workerThread = null;
-        }
+        reader = ThreadUtils.stop(reader);
+        process = ThreadUtils.stop(process);
     }
 }
