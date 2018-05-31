@@ -1,0 +1,31 @@
+FROM nvidia/cuda:9.2-cudnn7-devel-ubuntu16.04
+
+RUN apt-get update
+RUN apt-get install -y bsdmainutils pulseaudio consolekit libav-tools libopencv-dev build-essential libopencv-dev python-opencv software-properties-common
+RUN \
+  echo oracle-java8-installer shared/accepted-oracle-license-v1-1 select true | debconf-set-selections && \
+  add-apt-repository -y ppa:webupd8team/java && \
+  apt-get update && \
+  apt-get install -y oracle-java8-installer && \
+  rm -rf /var/lib/apt/lists/* && \
+  rm -rf /var/cache/oracle-jdk8-installer
+
+ENV JAVA_HOME /usr/lib/jvm/java-8-oracle
+
+RUN ln -s /usr/lib/x86_64-linux-gnu/libavfilter-ffmpeg.so.5 /usr/lib/x86_64-linux-gnu/libavfilter.so
+RUN ln -s /usr/lib/x86_64-linux-gnu/libavdevice-ffmpeg.so.56 /usr/lib/x86_64-linux-gnu/libavdevice.so
+RUN ln -s /lib/x86_64-linux-gnu/libbz2.so.1.0 /lib/x86_64-linux-gnu/libbz2.so
+RUN ln -s /usr/lib/x86_64-linux-gnu/libpostproc-ffmpeg.so.53 /usr/lib/x86_64-linux-gnu/libpostproc.so
+
+WORKDIR /hermes
+COPY darknet /hermes/darknet
+RUN cd /hermes/darknet && make
+
+COPY script /hermes/script
+COPY bin hermes/bin
+COPY lib hermes/lib
+COPY build/libs/hermes-1.0-SNAPSHOT.jar build/libs/hermes-1.0-SNAPSHOT.jar
+
+
+ENTRYPOINT script/start.sh
+

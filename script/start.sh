@@ -15,3 +15,5 @@ if [ "${arch}" = "x86_64" ]; then
 else
     java -Xbootclasspath/p:./lib/alpn-boot-8.1.9.v20160720.jar -cp ./build/libs/hermes-1.0-SNAPSHOT.jar core.Starter
 fi;
+
+sleep 1000000
