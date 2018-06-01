@@ -46,7 +46,7 @@ echo '====== start the coordinator ======'
 ssh lab3 "docker pull johnson163/hermes; docker run -d -e 'roles=coordinator' -e 'host=195.148.127.246' -e 'services=HeartbeatService' --network host johnson163/hermes:latest"
 
 echo '====== start the producer and the consumer ======'
-ssh workstation-vm "docker pull johnson163/hermes-cuda; sudo docker run -d --privileged=true -e 'roles=producer' -e 'host=195.148.125.215' --network host johnson163/hermes-cuda:latest"
+ssh workstation-vm "docker pull johnson163/hermes; sudo docker run -d --privileged=true -e 'roles=producer' -e 'host=195.148.125.215' --network host johnson163/hermes:latest"
 ssh workstation "docker pull johnson163/hermes-cuda; sudo docker run -d --privileged=true -e 'roles=consumer' -e 'host=195.148.125.212' --network host johnson163/hermes-cuda:latest"
 
 echo '====== start the client ======'
