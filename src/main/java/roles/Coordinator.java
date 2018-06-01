@@ -187,7 +187,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
             StartServiceResponse result = stub.start(Empty.newBuilder().build());
             logger.info("Service start response: " + result.getStatus().toString() + ", on " + TextFormat.shortDebugString(task.getSelf()));
         } catch (SSLException e) {
-            logger.error(e.getMessage(), e);
+            logger.error(e.getMessage() + task, e);
         }
     }
 

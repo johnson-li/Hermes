@@ -37,7 +37,7 @@ public class WebrtcSenderService implements Service {
         Map<String, String> env = new HashMap<>();
         env.put("server", Config.COORDINATOR_IP);
         env.put("name", String.valueOf(id));
-        env.put("peer", remotePeer);
+//        env.put("peer", remotePeer);
         env.put("autocall", "true");
         env.put("sendonly", String.valueOf(sendOnly).toLowerCase());
         env.forEach((key, val) -> {
