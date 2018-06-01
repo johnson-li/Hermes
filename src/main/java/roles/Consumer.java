@@ -19,7 +19,7 @@ public class Consumer extends Role {
     public void init() {
         addServices(new TaskController(this));
         addServices(new EchoService());
-        addServices(new WebrtcSenderService(context.getId(), false));
+        addServices(new WebrtcSenderService(context.getId()));
         super.init();
     }
 }
