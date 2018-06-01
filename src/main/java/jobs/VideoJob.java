@@ -21,11 +21,6 @@ public class VideoJob extends Job {
     public List<Task> getTasks() {
         if (tasks.isEmpty()) {
             tasks.add(Task.newBuilder()
-                    .setService(Service.newBuilder().setName(WebrtcSenderService.class.getSimpleName()).build())
-                    .setSelf(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Producer.class.getSimpleName()).build()).build())
-                    .setEgress(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Consumer.class.getSimpleName()).build()).build())
-                    .build());
-            tasks.add(Task.newBuilder()
                     .setService(Service.newBuilder().setName(WebrtcReceiverService.class.getSimpleName()).build())
                     .setSelf(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Consumer.class.getSimpleName()).build()).build())
                     .addIngresses(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Producer.class.getSimpleName()).build()).build())
@@ -35,6 +30,11 @@ public class VideoJob extends Job {
                     .setService(Service.newBuilder().setName(WebrtcClientService.class.getSimpleName()).build())
                     .setSelf(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Client.class.getSimpleName()).build()).build())
                     .addIngresses(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Consumer.class.getSimpleName())).build())
+                    .build());
+            tasks.add(Task.newBuilder()
+                    .setService(Service.newBuilder().setName(WebrtcSenderService.class.getSimpleName()).build())
+                    .setSelf(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Producer.class.getSimpleName()).build()).build())
+                    .setEgress(Participant.newBuilder().addRoles(Role.newBuilder().setRole(Consumer.class.getSimpleName()).build()).build())
                     .build());
         }
         return tasks;
