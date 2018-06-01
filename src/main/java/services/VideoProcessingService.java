@@ -5,6 +5,9 @@ import org.slf4j.LoggerFactory;
 import utils.ProcessReader;
 import utils.ThreadUtils;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class VideoProcessingService implements Service {
     static Logger logger = LoggerFactory.getLogger(VideoProcessingService.class);
     private Process process;
@@ -12,7 +15,12 @@ public class VideoProcessingService implements Service {
 
     @Override
     public void start() {
-        reader = ProcessReader.read("cd /hermes/darknet && ./darknet detect cfg/yolov3.cfg yolov3.weights");
+        List<String> commands = new ArrayList<>();
+        commands.add("/hermes/darknet/darknet");
+        commands.add("detect");
+        commands.add("/hermes/darknet/cfg/yolov3.cfg");
+        commands.add("/hermes/darknet/yolov3.weights");
+        reader = ProcessReader.read(commands);
         process = reader.getProcess();
     }
 
