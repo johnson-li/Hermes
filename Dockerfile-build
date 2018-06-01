@@ -22,9 +22,9 @@ COPY darknet /hermes/darknet
 RUN cd /hermes/darknet && make
 
 COPY script /hermes/script
-COPY bin/webrtc hermes/bin/webrtc
-COPY lib hermes/lib
-COPY build/libs/hermes-1.0-SNAPSHOT.jar build/libs/hermes-1.0-SNAPSHOT.jar
+COPY bin/webrtc /hermes/bin/webrtc
+COPY lib /hermes/lib
+COPY build/libs/hermes-1.0-SNAPSHOT.jar /hermes/build/libs/hermes-1.0-SNAPSHOT.jar
 
 
 ENTRYPOINT script/start.sh
