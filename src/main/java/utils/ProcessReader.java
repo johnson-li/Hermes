@@ -3,6 +3,7 @@ package utils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -21,8 +22,12 @@ public class ProcessReader extends Thread {
     }
 
     public static ProcessReader read(List<String> commands) {
+        return read(commands, "/");
+    }
+
+    public static ProcessReader read(List<String> commands, String path) {
         try {
-            Process process = new ProcessBuilder(commands).start();
+            Process process = new ProcessBuilder(commands).directory(new File(path)).start();
             return read(process);
         } catch (IOException e) {
             logger.error(e.getMessage(), e);

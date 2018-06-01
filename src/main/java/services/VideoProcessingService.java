@@ -20,7 +20,7 @@ public class VideoProcessingService implements Service {
         commands.add("detect");
         commands.add("/hermes/darknet/cfg/yolov3.cfg");
         commands.add("/hermes/darknet/yolov3.weights");
-        reader = ProcessReader.read(commands);
+        reader = ProcessReader.read(commands, "/hermes/darknet");
         process = reader.getProcess();
     }
 
