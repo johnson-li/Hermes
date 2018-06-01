@@ -26,7 +26,7 @@ public class WebrtcReceiverService extends WebrtcGrpc.WebrtcImplBase implements 
     });
 
     public WebrtcReceiverService(long id) {
-        senderService = new WebrtcSenderService(id, false);
+        senderService = new WebrtcSenderService(id);
     }
 
     @Override

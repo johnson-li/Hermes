@@ -17,6 +17,8 @@ import services.ServiceManager;
 import utils.ChannelUtil;
 
 import javax.net.ssl.SSLException;
+import java.io.IOException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -77,18 +79,6 @@ public class ServiceStarter {
     public void start() throws Exception {
         logger.info("Starting...");
 
-        // Create service
-        services = serviceStrings.stream().map(service ->
-                serviceManager.getService(service)).collect(Collectors.toList());
-        ServiceController controller = new ServiceController(serviceControlListener);
-
-        // Start the server
-        SelfSignedCertificate ssc = new SelfSignedCertificate();
-        ServerBuilder builder = ServerBuilder.forPort(servicePort).useTransportSecurity(ssc.certificate(),
-                ssc.privateKey()).addService(controller);
-        logger.info("Services: " + services.stream().map(Service::getName).collect(Collectors.toList()));
-        services.stream().filter(service -> service.bindService() != null).forEach(builder::addService);
-        server = builder.build().start();
 
         logger.info("Server started");
         // Get participant id
@@ -102,6 +92,24 @@ public class ServiceStarter {
             public void onNext(Identification identification) {
                 logger.info("Got identification " + TextFormat.shortDebugString(identification));
                 host = identification.getIp();
+                long id = identification.getId();
+
+                // Create service
+                services = serviceStrings.stream().map(service ->
+                        serviceManager.getService(service, id)).collect(Collectors.toList());
+                ServiceController controller = new ServiceController(serviceControlListener);
+
+                // Start the server
+                try {
+                    SelfSignedCertificate ssc = new SelfSignedCertificate();
+                    ServerBuilder builder = ServerBuilder.forPort(servicePort).useTransportSecurity(ssc.certificate(),
+                            ssc.privateKey()).addService(controller);
+                    logger.info("Services: " + (services.isEmpty() ? "NULL" : services.stream().map(Service::getName).collect(Collectors.toList())));
+                    services.stream().filter(service -> service.bindService() != null).forEach(builder::addService);
+                    server = builder.build().start();
+                } catch (CertificateException | IOException e) {
+                    logger.error(e.getMessage(), e);
+                }
 
                 // Register to the coordinator
                 ServiceRegistrationGrpc.ServiceRegistrationStub registrationStub =

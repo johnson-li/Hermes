@@ -16,14 +16,13 @@ import java.util.Map;
 public class WebrtcSenderService implements Service {
     static Logger logger = LoggerFactory.getLogger(WebrtcSenderService.class);
     private final long id;
-    private final boolean sendOnly;
+    private boolean sendOnly;
     private String remotePeer = "";
     private Process process;
     private ProcessReader reader;
 
-    public WebrtcSenderService(long id, boolean sendOnly) {
+    public WebrtcSenderService(long id) {
         this.id = id;
-        this.sendOnly = sendOnly;
     }
 
     public void setRemotePeer(String remotePeer) {
