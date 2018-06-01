@@ -26,7 +26,7 @@ public class Client extends Role implements TaskListener {
     }
 
     public void initJob(JobListener jobListener) {
-        logger.info("Init job");
+        logger.info("Init job: " + Config.JOB);
         JobManagerGrpc.JobManagerStub stub = JobManagerGrpc.newStub(getChannel());
         stub.initJob(Job.newBuilder().setName(Config.JOB).build(), new SimpleStreamObserver<InitJobResult>() {
             @Override
