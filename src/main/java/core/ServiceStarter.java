@@ -86,6 +86,7 @@ public class ServiceStarter {
         SelfSignedCertificate ssc = new SelfSignedCertificate();
         ServerBuilder builder = ServerBuilder.forPort(servicePort).useTransportSecurity(ssc.certificate(),
                 ssc.privateKey()).addService(controller);
+        logger.info("Services: " + services.stream().map(Service::getName).collect(Collectors.toList()));
         services.stream().filter(service -> service.bindService() != null).forEach(builder::addService);
         server = builder.build().start();
 
