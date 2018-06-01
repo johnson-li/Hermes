@@ -17,6 +17,7 @@ public class JobManager {
 
     private JobManager() {
         jobs.add(new EchoJob());
+        jobs.add(new VideoJob());
         try {
             ClassPath.from(getClass().getClassLoader()).getTopLevelClasses("jobs").stream()
                     .map(ClassPath.ClassInfo::load)
