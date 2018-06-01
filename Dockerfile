@@ -1,7 +1,7 @@
 FROM java:8-jdk
 
 RUN apt-get update
-RUN apt-get install -y bsdmainutils pulseaudio consolekit libav-tools libopencv-dev
+RUN apt-get install -y bsdmainutils pulseaudio consolekit
 
 WORKDIR /hermes
 COPY bin/webrtc bin/webrtc
