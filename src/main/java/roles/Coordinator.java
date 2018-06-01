@@ -81,6 +81,11 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         logger.info("start services: " + jobId);
         jobs.Job workingJob = jobs.get(jobId);
         List<Task> tasks = workingJob.getTasks();
+        ChannelUtil.getInstance().execute(() -> {
+            tasks.stream().filter(task -> task.getSelf().getRoles(0).getRole().equals(Consumer.class.getSimpleName())).findAny().ifPresent(task -> notifyParticipantStart(task, jobId));
+            tasks.stream().filter(task -> task.getSelf().getRoles(0).getRole().equals(Client.class.getSimpleName())).findAny().ifPresent(task -> notifyParticipantStart(task, jobId));
+            tasks.stream().filter(task -> task.getSelf().getRoles(0).getRole().equals(Producer.class.getSimpleName())).findAny().ifPresent(task -> notifyParticipantStart(task, jobId));
+        });
         ChannelUtil.getInstance().execute(() -> tasks.forEach(task -> notifyParticipantStart(task, jobId)));
     }
 
