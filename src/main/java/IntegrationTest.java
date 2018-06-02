@@ -23,8 +23,8 @@ public class IntegrationTest {
         Config.SERVICES.add(EchoService.class.getSimpleName());
         Config.JOB_ID = 12345;
         Config.AUTO_PLAY = false;
-        WebrtcSenderService.CLIENT_PATH = "/home/lix16/Workspace/webrtc/src/out/Default/peerconnection_client_terminal";
-        WebrtcServer.SERVER_PATH = "/home/lix16/Workspace/webrtc/src/out/Default/peerconnection_server";
+//        WebrtcSenderService.CLIENT_PATH = "/home/lix16/Workspace/webrtc/src/out/Default/peerconnection_client_terminal";
+//        WebrtcServer.SERVER_PATH = "/home/lix16/Workspace/webrtc/src/out/Default/peerconnection_server";
     }
 
     private Logger logger = LoggerFactory.getLogger(IntegrationTest.class);
