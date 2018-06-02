@@ -76,6 +76,7 @@ public class ServiceStarter {
         while (server == null) {
             Thread.sleep(200);
         }
+        logger.info("GRPC server started");
         server.awaitTermination();
     }
 
