@@ -38,7 +38,7 @@ public class WebrtcSenderService implements Service {
         env.put("name", String.valueOf(id));
 //        env.put("peer", remotePeer);
         env.put("autocall", "true");
-        env.put("sendonly", String.valueOf(sendOnly).toLowerCase());
+//        env.put("sendonly", String.valueOf(sendOnly).toLowerCase());
         env.forEach((key, val) -> {
             commands.add("--" + key);
             commands.add(val);
