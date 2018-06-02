@@ -73,7 +73,9 @@ public class ServiceStarter {
 
     private void await() throws InterruptedException {
         logger.info("Await");
-        while (server == null) ;
+        while (server == null) {
+            Thread.sleep(200);
+        }
         server.awaitTermination();
     }
 

@@ -9,10 +9,10 @@ import utils.ThreadUtils;
 
 @DefaultRun
 public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implements Service {
+    public static String SERVER_PATH = "/hermes/bin/webrtc/peerconnection_server";
     private static Logger logger = LoggerFactory.getLogger(WebrtcServer.class);
     private Process process;
     private ProcessReader reader;
-    public static String SERVER_PATH = "/hermes/bin/webrtc/peerconnection_server";
 
     @Override
     public void init() {
