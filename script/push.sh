@@ -3,6 +3,7 @@
 mkdir -p ~/Workspace/Hermes/bin/webrtc/
 cd ~/Workspace/Hermes/
 
+git pull
 ./gradlew jar
 ./script/init.sh
 
