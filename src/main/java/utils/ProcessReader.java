@@ -63,4 +63,10 @@ public class ProcessReader extends Thread {
             }
         }
     }
+
+    @Override
+    public void interrupt() {
+        super.interrupt();
+        process.destroy();
+    }
 }

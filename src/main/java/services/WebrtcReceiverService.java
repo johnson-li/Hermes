@@ -36,9 +36,12 @@ public class WebrtcReceiverService extends WebrtcGrpc.WebrtcImplBase implements 
 
     @Override
     public void start() {
+        logger.info("Start WebrtcReceiverService");
         processingService.start();
         senderService.start();
-        workerThread.start();
+        if (!workerThread.isAlive()) {
+            workerThread.start();
+        }
     }
 
     @Override
