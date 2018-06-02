@@ -36,6 +36,9 @@ public class WebrtcSenderService implements Service {
 
     @Override
     public void start() {
+        if (true) {
+            return;
+        }
         // Disable webrtc client
         List<String> commands = new ArrayList<>();
         commands.add(CLIENT_PATH);
