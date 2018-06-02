@@ -7,26 +7,28 @@ import proto.hermes.Status;
 import proto.hermes.WebrtcGrpc;
 import proto.hermes.WebrtcInfo;
 import proto.hermes.WebrtcResponse;
+import utils.ChannelUtil;
 
 public class WebrtcReceiverService extends WebrtcGrpc.WebrtcImplBase implements Service {
     private final WebrtcSenderService senderService;
     private final VideoProcessingService processingService = new VideoProcessingService();
+    private final Runnable workerThread;
     private StreamObserver<WebrtcResponse> observer;
-    private Thread workerThread = new Thread(() -> {
-        while (!Thread.currentThread().isInterrupted()) {
-            if (observer != null) {
-                observer.onNext(WebrtcResponse.newBuilder().setStatus(Status.SUCCESS).build());
-            }
-            try {
-                Thread.sleep(10000);
-            } catch (InterruptedException e) {
-                logger.error(e.getMessage(), e);
-            }
-        }
-    });
+    private boolean interrupted;
 
     public WebrtcReceiverService(long id) {
         senderService = new WebrtcSenderService(id);
+        workerThread = new Runnable() {
+            @Override
+            public void run() {
+                while (!interrupted) {
+                    if (observer != null) {
+                        observer.onNext(WebrtcResponse.newBuilder().setStatus(Status.SUCCESS).build());
+                    }
+                    ChannelUtil.getInstance().execute(workerThread, 10000);
+                }
+            }
+        };
     }
 
     @Override
@@ -39,9 +41,7 @@ public class WebrtcReceiverService extends WebrtcGrpc.WebrtcImplBase implements 
         logger.info("Start WebrtcReceiverService");
         processingService.start();
         senderService.start();
-        if (!workerThread.isAlive()) {
-            workerThread.start();
-        }
+        ChannelUtil.getInstance().execute(workerThread);
     }
 
     @Override
@@ -54,7 +54,7 @@ public class WebrtcReceiverService extends WebrtcGrpc.WebrtcImplBase implements 
     public void stop() {
         processingService.stop();
         senderService.stop();
-        workerThread.interrupt();
+        interrupted = true;
     }
 
     @Override
