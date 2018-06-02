@@ -12,10 +12,11 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
     private static Logger logger = LoggerFactory.getLogger(WebrtcServer.class);
     private Process process;
     private ProcessReader reader;
+    public static String SERVER_PATH = "/hermes/bin/webrtc/peerconnection_server";
 
     @Override
     public void init() {
-        String cmd = "/hermes/bin/webrtc/peerconnection_server";
+        String cmd = SERVER_PATH;
         reader = ProcessReader.read(cmd);
         process = reader.getProcess();
     }

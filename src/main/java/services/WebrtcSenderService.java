@@ -19,6 +19,7 @@ public class WebrtcSenderService implements Service {
     private String remotePeer = "";
     private Process process;
     private ProcessReader reader;
+    public static String CLIENT_PATH = "/hermes/bin/webrtc/peerconnection_client_terminal";
 
     public WebrtcSenderService(long id) {
         this.id = id;
@@ -40,7 +41,7 @@ public class WebrtcSenderService implements Service {
         }
         // Disable webrtc client
         List<String> commands = new ArrayList<>();
-        commands.add("/hermes/bin/webrtc/peerconnection_client_terminal");
+        commands.add(CLIENT_PATH);
         Map<String, String> env = new HashMap<>();
         env.put("server", Config.COORDINATOR_IP);
         env.put("name", String.valueOf(id));

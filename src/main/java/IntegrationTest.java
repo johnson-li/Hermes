@@ -10,10 +10,7 @@ import roles.Client;
 import roles.Consumer;
 import roles.Coordinator;
 import roles.Producer;
-import services.EchoService;
-import services.JobListener;
-import services.PrintService;
-import services.RandomGenerator;
+import services.*;
 
 public class IntegrationTest {
     static {
@@ -26,6 +23,8 @@ public class IntegrationTest {
         Config.SERVICES.add(EchoService.class.getSimpleName());
         Config.JOB_ID = 12345;
         Config.AUTO_PLAY = false;
+        WebrtcSenderService.CLIENT_PATH = "/home/lix16/Workspace/webrtc/src/out/Default/peerconnection_client_terminal";
+        WebrtcServer.SERVER_PATH = "/home/lix16/Workspace/webrtc/src/out/Default/peerconnection_server";
     }
 
     private Logger logger = LoggerFactory.getLogger(IntegrationTest.class);
@@ -63,9 +62,9 @@ public class IntegrationTest {
         ServiceStarter producerService = new ServiceStarter();
         ServiceStarter consumerService = new ServiceStarter();
 
-        clientService.initServices(PrintService.class);
-        consumerService.initServices(EchoService.class);
-        producerService.initServices(RandomGenerator.class);
+        clientService.initServices(WebrtcClientService.class);
+        consumerService.initServices(WebrtcReceiverService.class);
+        producerService.initServices(WebrtcSenderService.class);
         clientService.managementPort = client.port;
         producerService.managementPort = producer.port;
         consumerService.managementPort = consumer.port;
