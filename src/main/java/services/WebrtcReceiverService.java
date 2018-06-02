@@ -11,7 +11,7 @@ import utils.ChannelUtil;
 
 public class WebrtcReceiverService extends WebrtcGrpc.WebrtcImplBase implements Service {
     private final WebrtcSenderService senderService;
-//    private final VideoProcessingService processingService = new VideoProcessingService();
+    //    private final VideoProcessingService processingService = new VideoProcessingService();
     private final Runnable workerThread;
     private StreamObserver<WebrtcResponse> observer;
     private boolean interrupted;
@@ -21,7 +21,7 @@ public class WebrtcReceiverService extends WebrtcGrpc.WebrtcImplBase implements 
         workerThread = new Runnable() {
             @Override
             public void run() {
-                while (!interrupted) {
+                if (!interrupted) {
                     if (observer != null) {
                         observer.onNext(WebrtcResponse.newBuilder().setStatus(Status.SUCCESS).build());
                     }
