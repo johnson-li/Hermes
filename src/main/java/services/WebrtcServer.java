@@ -7,8 +7,6 @@ import proto.hermes.WebrtcServerGrpc;
 import utils.ProcessReader;
 import utils.ThreadUtils;
 
-import java.io.IOException;
-
 @DefaultRun
 public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implements Service {
     private static Logger logger = LoggerFactory.getLogger(WebrtcServer.class);
@@ -24,13 +22,7 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
         }
         String cmd = "/hermes/bin/webrtc/peerconnection_server";
         reader = ProcessReader.read(cmd);
-        try {
-            process = Runtime.getRuntime().exec(cmd);
-            reader = new ProcessReader(process);
-            reader.start();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
+        process = reader.getProcess();
     }
 
     @Override
