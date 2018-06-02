@@ -51,6 +51,7 @@ public class WebrtcReceiverService extends WebrtcGrpc.WebrtcImplBase implements 
     public void stop() {
         processingService.stop();
         senderService.stop();
+        workerThread.interrupt();
     }
 
     @Override
