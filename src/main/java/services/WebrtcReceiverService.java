@@ -11,7 +11,7 @@ import utils.ChannelUtil;
 
 public class WebrtcReceiverService extends WebrtcGrpc.WebrtcImplBase implements Service {
     private final WebrtcSenderService senderService;
-    //    private final VideoProcessingService processingService = new VideoProcessingService();
+    private final VideoProcessingService processingService = new VideoProcessingService();
     private final Runnable workerThread;
     private StreamObserver<WebrtcResponse> observer;
     private boolean interrupted;
@@ -39,27 +39,27 @@ public class WebrtcReceiverService extends WebrtcGrpc.WebrtcImplBase implements 
     @Override
     public void start() {
         logger.info("Start WebrtcReceiverService");
-//        processingService.start();
+        processingService.start();
         senderService.start();
         ChannelUtil.getInstance().execute(workerThread);
     }
 
     @Override
     public void init() {
-//        processingService.init();
+        processingService.init();
         senderService.init();
     }
 
     @Override
     public void stop() {
-//        processingService.stop();
+        processingService.stop();
         senderService.stop();
         interrupted = true;
     }
 
     @Override
     public void listen(ManagedChannel channel) {
-//        processingService.listen(channel);
+        processingService.listen(channel);
         senderService.listen(channel);
     }
 }
