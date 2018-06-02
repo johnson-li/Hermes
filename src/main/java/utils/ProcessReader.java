@@ -8,10 +8,11 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 
-public class ProcessReader extends Thread {
+public class ProcessReader implements Runnable {
     private static Logger logger = LoggerFactory.getLogger(ProcessReader.class);
     private byte[] buffer = new byte[1024 * 1024];
     private Process process;
+    private boolean interrupted;
 
     public ProcessReader(Process process) {
         this.process = process;
@@ -39,7 +40,7 @@ public class ProcessReader extends Thread {
     static ProcessReader read(Process process) {
         ProcessReader reader;
         reader = new ProcessReader(process);
-        reader.start();
+        ChannelUtil.getInstance().execute(reader);
         return reader;
     }
 
@@ -49,27 +50,28 @@ public class ProcessReader extends Thread {
 
     @Override
     public void run() {
-        while (!interrupted() && process.isAlive()) {
+        if (!interrupted && process.isAlive()) {
             try {
                 if (process.getErrorStream().available() > 0) {
                     int length = process.getErrorStream().read(buffer);
-                    logger.error(new String(buffer, 0, length));
+                    logger.error(new String(buffer, 0, length).trim());
                 }
                 if (process.getInputStream().available() > 0) {
                     int length = process.getInputStream().read(buffer);
-                    logger.info(new String(buffer, 0, length));
+                    logger.info(new String(buffer, 0, length).trim());
                 }
+                ChannelUtil.getInstance().execute(this, 100);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
             }
         }
     }
 
-    @Override
     public void interrupt() {
-        super.interrupt();
-        if (process != null && process.isAlive()) {
-            process.destroy();
-        }
+        interrupted = true;
+    }
+
+    public boolean isInterrupted() {
+        return interrupted;
     }
 }

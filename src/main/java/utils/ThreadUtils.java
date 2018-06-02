@@ -10,7 +10,7 @@ public class ThreadUtils {
     }
 
     public static ProcessReader stop(ProcessReader processReader) {
-        if (processReader != null && !processReader.isAlive()) {
+        if (processReader != null && !processReader.isInterrupted()) {
             processReader.interrupt();
         }
         return null;
