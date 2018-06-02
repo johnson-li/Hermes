@@ -15,11 +15,6 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
 
     @Override
     public void init() {
-        // Disable webrtc in the development environment
-        if (System.getProperty("os.name").equals("Mac OS X")) {
-            logger.warn("Disable webrtc in the development environment");
-            return;
-        }
         String cmd = "/hermes/bin/webrtc/peerconnection_server";
         reader = ProcessReader.read(cmd);
         process = reader.getProcess();

@@ -24,6 +24,11 @@ public class WebrtcSenderService implements Service {
         this.id = id;
     }
 
+    public static void main(String[] args) {
+        WebrtcSenderService service = new WebrtcSenderService(0xffff);
+        service.start();
+    }
+
     public void setRemotePeer(String remotePeer) {
         this.remotePeer = remotePeer;
     }
