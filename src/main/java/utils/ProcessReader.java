@@ -27,6 +27,7 @@ public class ProcessReader extends Thread {
 
     public static ProcessReader read(List<String> commands, String path) {
         try {
+            logger.info("RUN " + commands + " in " + path);
             Process process = new ProcessBuilder(commands).directory(new File(path)).start();
             return read(process);
         } catch (IOException e) {
@@ -67,6 +68,8 @@ public class ProcessReader extends Thread {
     @Override
     public void interrupt() {
         super.interrupt();
-        process.destroy();
+        if (process != null && process.isAlive()) {
+            process.destroy();
+        }
     }
 }

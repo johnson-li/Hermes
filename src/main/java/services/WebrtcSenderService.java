@@ -7,7 +7,6 @@ import proto.hermes.Protocol;
 import utils.ProcessReader;
 import utils.ThreadUtils;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -44,14 +43,8 @@ public class WebrtcSenderService implements Service {
             commands.add("--" + key);
             commands.add(val);
         });
-        try {
-            process = new ProcessBuilder(commands).start();
-            reader = new ProcessReader(process);
-            reader.start();
-        } catch (IOException e) {
-            logger.error(e.getMessage());
-        }
-
+        reader = ProcessReader.read(commands);
+        process = reader.getProcess();
     }
 
     @Override
@@ -61,6 +54,7 @@ public class WebrtcSenderService implements Service {
 
     @Override
     public void stop() {
+        reader = ThreadUtils.stop(reader);
         reader = ThreadUtils.stop(reader);
         process = ThreadUtils.stop(process);
     }
