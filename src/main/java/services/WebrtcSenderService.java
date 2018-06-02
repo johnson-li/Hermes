@@ -13,13 +13,13 @@ import java.util.List;
 import java.util.Map;
 
 public class WebrtcSenderService implements Service {
+    public static String CLIENT_PATH = "/hermes/bin/webrtc/peerconnection_client_terminal";
     static Logger logger = LoggerFactory.getLogger(WebrtcSenderService.class);
     private final long id;
     private boolean sendOnly;
     private String remotePeer = "";
     private Process process;
     private ProcessReader reader;
-    public static String CLIENT_PATH = "/hermes/bin/webrtc/peerconnection_client_terminal";
 
     public WebrtcSenderService(long id) {
         this.id = id;
@@ -63,7 +63,6 @@ public class WebrtcSenderService implements Service {
 
     @Override
     public void stop() {
-        reader = ThreadUtils.stop(reader);
         reader = ThreadUtils.stop(reader);
         process = ThreadUtils.stop(process);
     }
