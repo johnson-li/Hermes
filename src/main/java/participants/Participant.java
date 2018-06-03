@@ -76,7 +76,7 @@ public class Participant extends Context {
     public RegistrationResult register() {
         logger.info(String.format("Register to %s:%s", Config.COORDINATOR_IP, Config.COORDINATOR_PORT));
         try {
-            channel = ChannelUtil.getInstance().newClientChannel(Config.COORDINATOR_IP, Config.COORDINATOR_PORT);
+            channel = ChannelUtil.getInstance().getClientChannel(Config.COORDINATOR_IP, Config.COORDINATOR_PORT);
             roles.forEach(role -> role.setChannel(channel));
         } catch (SSLException e) {
             logger.error(e.getMessage(), e);
@@ -96,7 +96,7 @@ public class Participant extends Context {
 
     public void startHeartbeat() {
         try {
-            channel = ChannelUtil.getInstance().newClientChannel(Config.COORDINATOR_IP, Config.COORDINATOR_PORT);
+            channel = ChannelUtil.getInstance().getClientChannel(Config.COORDINATOR_IP, Config.COORDINATOR_PORT);
         } catch (SSLException e) {
             logger.error(e.getMessage(), e);
         }

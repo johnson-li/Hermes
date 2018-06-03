@@ -17,8 +17,6 @@ public class ServiceManager {
             service = new EchoService();
         } else if (name.equals(RandomGenerator.class.getSimpleName())) {
             service = new RandomGenerator();
-        } else if (name.equals(VideoProcessingService.class.getSimpleName())) {
-            service = new VideoProcessingService();
         } else if (name.equals(WebrtcReceiverService.class.getSimpleName())) {
             service = new WebrtcReceiverService(id);
         } else if (name.equals(WebrtcSenderService.class.getSimpleName())) {

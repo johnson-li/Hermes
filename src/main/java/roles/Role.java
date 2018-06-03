@@ -73,7 +73,7 @@ public abstract class Role implements TaskListener {
         for (Participant ingress : task.getIngressesList()) {
             try {
                 ManagedChannel channel = ChannelUtil.getInstance()
-                        .newClientChannel(ingress.getAddress().getIp(), ingress.getAddress().getPort());
+                        .getClientChannel(ingress.getAddress().getIp(), ingress.getAddress().getPort());
                 String serviceName = task.getService().getName();
                 Service service = getService(serviceName).orElseThrow(() -> new ServiceNotFoundException(serviceName));
                 ChannelUtil.getInstance().getWorkingGroup().execute(() -> service.listen(channel));

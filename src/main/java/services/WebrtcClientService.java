@@ -1,13 +1,16 @@
 package services;
 
+import com.google.protobuf.TextFormat;
+import core.Config;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import proto.hermes.Protocol;
-import proto.hermes.WebrtcGrpc;
-import proto.hermes.WebrtcInfo;
-import proto.hermes.WebrtcResponse;
+import proto.hermes.*;
+import utils.ChannelUtil;
+import utils.SimpleStreamObserver;
+
+import javax.net.ssl.SSLException;
 
 public class WebrtcClientService implements Service {
     private static Logger logger = LoggerFactory.getLogger(WebrtcClientService.class);
@@ -18,7 +21,22 @@ public class WebrtcClientService implements Service {
         stub.webrtc(WebrtcInfo.newBuilder().build(), new StreamObserver<WebrtcResponse>() {
             @Override
             public void onNext(WebrtcResponse value) {
-                logger.info(value.getStatus().name());
+                logger.info(TextFormat.shortDebugString(value));
+                if (value.getObject().equals("bicycle")) {
+                    try {
+                        ManagedChannel coordinatorChannel =
+                                ChannelUtil.getInstance().getClientChannel(Config.COORDINATOR_IP, Config.COORDINATOR_PORT);
+                        JobManagerGrpc.JobManagerStub stub = JobManagerGrpc.newStub(coordinatorChannel);
+                        stub.finishJob(Job.newBuilder().setId(12345).build(), new SimpleStreamObserver<FinishJobResult>() {
+                            @Override
+                            public void onNext(FinishJobResult result) {
+                                logger.info("Job stop result: " + result.getStatus());
+                            }
+                        });
+                    } catch (SSLException e) {
+                        logger.error(e.getMessage(), e);
+                    }
+                }
             }
 
             @Override

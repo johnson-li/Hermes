@@ -1,7 +1,6 @@
 package utils;
 
 import com.google.common.collect.ImmutableMap;
-import core.Config;
 import io.socket.client.IO;
 import io.socket.client.Socket;
 import org.json.JSONException;
@@ -108,9 +107,8 @@ public class DockerManager {
             args.put("network", "195.148.125.0");
         } else {
             args.put("ip", ip);
-            envString += String.format(" -p %s:%s", port, port);
         }
-        envString += String.format(" --net hermes --ip %s", Config.MANAGEMENT_IP);
+        envString += " --net host";
         args.put("arguments", envString);
         args.put("image", image);
         return args;

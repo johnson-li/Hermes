@@ -134,7 +134,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     private void notifyParticipantStop(Task task) {
         try {
             ManagedChannel channel = ChannelUtil.getInstance()
-                    .newClientChannel(task.getSelf().getAddress().getIp(), task.getSelf().getAddress().getPort());
+                    .getClientChannel(task.getSelf().getAddress().getIp(), task.getSelf().getAddress().getPort());
             TaskControllerGrpc.TaskControllerBlockingStub stub = TaskControllerGrpc.newBlockingStub(channel);
             StopResult result = stub.stop(task);
         } catch (SSLException e) {
@@ -151,7 +151,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
                     .findFirst().orElse(null);
             String serviceIP = info.getAddress().getIp();
             int servicePort = info.getAddress().getPort();
-            ManagedChannel channel = ChannelUtil.getInstance().newClientChannel(serviceIP, servicePort);
+            ManagedChannel channel = ChannelUtil.getInstance().getClientChannel(serviceIP, servicePort);
             ServiceControllerGrpc.ServiceControllerBlockingStub stub = ServiceControllerGrpc.newBlockingStub(channel);
             InitServiceRequest.Builder builder = InitServiceRequest.newBuilder();
             if (task.getIngressesCount() > 0) {
@@ -181,7 +181,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
             ServiceInfo info = servicesByJob.get(jobId).stream().filter(serviceInfo ->
                     serviceInfo.getName(0).equals(service)).findFirst().orElse(null);
             ManagedChannel channel = ChannelUtil.getInstance()
-                    .newClientChannel(info.getAddress().getIp(), info.getAddress().getPort());
+                    .getClientChannel(info.getAddress().getIp(), info.getAddress().getPort());
             ServiceControllerGrpc.ServiceControllerBlockingStub stub = ServiceControllerGrpc.newBlockingStub(channel);
             StartServiceResponse result = stub.start(Empty.newBuilder().build());
             logger.info("Service start response: " + result.getStatus().toString() + ", on " + TextFormat.shortDebugString(task.getSelf()));
@@ -224,7 +224,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     private void notifyParticipant(Task task) {
         try {
             ManagedChannel channel = ChannelUtil.getInstance()
-                    .newClientChannel(task.getSelf().getAddress().getIp(), task.getSelf().getAddress().getPort());
+                    .getClientChannel(task.getSelf().getAddress().getIp(), task.getSelf().getAddress().getPort());
             TaskControllerGrpc.TaskControllerBlockingStub stub = TaskControllerGrpc.newBlockingStub(channel);
             AssignResult result = stub.assign(task);
         } catch (SSLException e) {

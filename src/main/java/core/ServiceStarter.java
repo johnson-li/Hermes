@@ -45,7 +45,7 @@ public class ServiceStarter {
                 if (request.getIngress() != null && !request.getIngress().getIp().isEmpty()) {
                     logger.info("Listen on: " + TextFormat.shortDebugString(request.getIngress()));
                     ManagedChannel ingressChannel = ChannelUtil.getInstance()
-                            .newClientChannel(request.getIngress().getIp(), request.getIngress().getPort());
+                            .getClientChannel(request.getIngress().getIp(), request.getIngress().getPort());
                     ChannelUtil.getInstance().execute(() -> services.forEach(service -> service.listen(ingressChannel)));
                 }
             } catch (SSLException e) {
@@ -87,9 +87,9 @@ public class ServiceStarter {
         logger.info("Server started");
         // Get participant id
         ManagedChannel managementChannel =
-                ChannelUtil.getInstance().newClientChannel(managementIP, managementPort);
+                ChannelUtil.getInstance().getClientChannel(managementIP, managementPort);
         ManagedChannel coordinatorChannel =
-                ChannelUtil.getInstance().newClientChannel(Config.COORDINATOR_IP, Config.COORDINATOR_PORT);
+                ChannelUtil.getInstance().getClientChannel(Config.COORDINATOR_IP, Config.COORDINATOR_PORT);
         IdentifyGrpc.IdentifyStub stub = IdentifyGrpc.newStub(managementChannel);
         stub.identify(null, new StreamObserver<Identification>() {
             @Override

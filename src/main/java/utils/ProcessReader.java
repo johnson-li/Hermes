@@ -13,6 +13,7 @@ public class ProcessReader implements Runnable {
     private byte[] buffer = new byte[1024 * 1024];
     private Process process;
     private boolean interrupted;
+    private ProcessReaderListener listener;
 
     public ProcessReader(Process process) {
         this.process = process;
@@ -44,6 +45,10 @@ public class ProcessReader implements Runnable {
         return reader;
     }
 
+    public void setListener(ProcessReaderListener listener) {
+        this.listener = listener;
+    }
+
     public Process getProcess() {
         return process;
     }
@@ -54,11 +59,19 @@ public class ProcessReader implements Runnable {
             try {
                 if (process.getErrorStream().available() > 0) {
                     int length = process.getErrorStream().read(buffer);
-                    logger.error(new String(buffer, 0, length).trim());
+                    String output = new String(buffer, 0, length).trim();
+                    if (listener != null) {
+                        listener.onRead(output);
+                    }
+                    logger.error(output);
                 }
                 if (process.getInputStream().available() > 0) {
                     int length = process.getInputStream().read(buffer);
-                    logger.info(new String(buffer, 0, length).trim());
+                    String output = new String(buffer, 0, length).trim();
+                    if (listener != null) {
+                        listener.onRead(output);
+                    }
+                    logger.info(output);
                 }
                 ChannelUtil.getInstance().execute(this, 100);
             } catch (IOException e) {

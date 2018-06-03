@@ -14,6 +14,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.net.ssl.SSLException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 public class ChannelUtil {
@@ -21,6 +23,7 @@ public class ChannelUtil {
     private static ChannelUtil instance = new ChannelUtil();
     private EventLoopGroup ioGroup = new NioEventLoopGroup();
     private EventLoopGroup workingGroup = new NioEventLoopGroup();
+    private Map<String, ManagedChannel> cache = new HashMap<>();
 
     public static ChannelUtil getInstance() {
         return instance;
@@ -43,13 +46,19 @@ public class ChannelUtil {
         workingGroup.schedule(runnable, delay, TimeUnit.MILLISECONDS);
     }
 
-    public ManagedChannel newClientChannel(String ip, int port) throws SSLException {
+    public ManagedChannel getClientChannel(String ip, int port) throws SSLException {
+        String key = String.format("%s:%d", ip, port);
+        if (cache.containsKey(key)) {
+            return cache.get(key);
+        }
         SslContextBuilder sslContextBuilder =
                 GrpcSslContexts.forClient().trustManager(InsecureTrustManagerFactory.INSTANCE);
         SslContext sslContext = sslContextBuilder.build();
         NettyChannelBuilder builder = NettyChannelBuilder.forAddress(ip, port)
                 .eventLoopGroup(ioGroup)
                 .channelType(NioSocketChannel.class).negotiationType(NegotiationType.TLS).sslContext(sslContext);
-        return builder.build();
+        ManagedChannel channel = builder.build();
+        cache.put(key, channel);
+        return channel;
     }
 }
