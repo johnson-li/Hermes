@@ -187,11 +187,11 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     }
 
     private void stopContainers(Task task, long jobId) {
-        logger.info("Stop containers: " + TextFormat.shortDebugString(task));
+        logger.info("Stop containers: " + TextFormat.shortDebugString(task) + ", " + jobId);
         List<ServiceInfo> serviceInfoList = servicesByJob.get(jobId);
         serviceInfoList.forEach(serviceInfo -> {
             String containerName = DockerManager.getInstance().getContainerNames().get(serviceInfo.getId());
-            DockerManager.getInstance().stopContainer(containerName, serviceInfo.getAddress().getIp());
+            DockerManager.getInstance().stopContainerAction(containerName, serviceInfo.getAddress().getIp());
         });
     }
 

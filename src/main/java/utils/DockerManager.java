@@ -135,7 +135,16 @@ public class DockerManager {
         return -1;
     }
 
-    public Map<String, String> stopContainer(String name, String ip) {
+    public void stopContainerAction(String name, String ip) {
+        Map<String, List<Map<String, String>>> terminateMap = new HashMap<>();
+        Map<String, String> map = stopContainer(name, ip);
+        List<Map<String, String>> list = new ArrayList<>();
+        list.add(map);
+        terminateMap.put("common", list);
+        getInstance().socket.emit("stop_containers", terminateMap);
+    }
+
+    private Map<String, String> stopContainer(String name, String ip) {
         Map<String, String> args = new HashMap<>();
         args.put("name", name);
         args.put("ip", ip);
