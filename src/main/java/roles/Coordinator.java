@@ -216,7 +216,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
                 image = "johnson163/hermes-cuda";
             }
             Map<String, String> data = DockerManager.getInstance().startContainerData(participant.getAddress().getIp(),
-                    env, image, Config.SERVICE_PORT, participant.getRoles(0).getRole());
+                    env, image, Config.SERVICE_PORT, participant.getRoles(0).getRole().toLowerCase());
             String type = participant.getRoles(0).getRole().toLowerCase();
             if (!type.equals("consumer")) {
                 type = "producer";

@@ -65,7 +65,7 @@ public class DockerManager {
         map.put("producer", new ArrayList<>());
         map.put("consumer", new ArrayList<>());
         //client
-        Map<String, String> data = getInstance().startContainerData("195.148.125.214", ImmutableMap.<String, String>builder().put("roles", "client").build(), "johnson163/hermes-arm", 8080, "client");
+        Map<String, String> data = getInstance().startContainerData("195.148.125.214", ImmutableMap.<String, String>builder().put("roles", "client").put("haha", "haha").build(), "johnson163/hermes-arm", 8080, "client");
         map.get("producer").add(data);
         //consumer
         data = getInstance().startContainerData("195.148.125.212", ImmutableMap.<String, String>builder().put("roles", "consumer").build(), "johnson163/hermes", 8080, "consumer");
