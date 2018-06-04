@@ -23,7 +23,7 @@ public class WebrtcClientService implements Service {
             @Override
             public void onNext(WebrtcResponse value) {
                 logger.info(TextFormat.shortDebugString(value));
-                if (value.getObject().equals("bicycle")) {
+                if (value.getObject().equals("bicycle") || value.getObject().equals("person")) {
                     try {
                         ManagedChannel managementChannel =
                                 ChannelUtil.getInstance().getClientChannel(Config.MANAGEMENT_IP, Config.PORT);

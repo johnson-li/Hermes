@@ -13,13 +13,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class DockerManager {
     private static DockerManager ourInstance = new DockerManager();
     private Logger logger = LoggerFactory.getLogger(DockerManager.class);
     private Socket socket;
-    private List<String> names = new ArrayList<>();
-    private List<String> ips = new ArrayList<>();
+    private Map<Long, String> containerNames = new ConcurrentHashMap<>();
 
     private DockerManager() {
         try {
@@ -31,23 +33,22 @@ public class DockerManager {
                     try {
                         String name = json.get("name").toString();
                         String ip = json.get("id").toString();
-                        names.add(name);
-                        ips.add(ip);
+                        String arguments = json.get("arguments").toString();
+                        long id = matchId(arguments);
+                        containerNames.put(id, name);
                     } catch (JSONException e) {
                         logger.error(e.getMessage(), e);
                     }
                 } else {
-                    System.out.println(args);
+                    logger.warn("Unexpected: " + args.toString());
                 }
             });
             socket.on("stop.status", args -> {
-                System.out.println(args);
-                System.out.println();
                 if (args[0] instanceof JSONObject) {
                     JSONObject json = (JSONObject) args[0];
                     logger.info(json.toString());
                 } else {
-                    System.out.println(args);
+                    logger.warn("Unexpected: " + args.toString());
                 }
             });
             socket.connect();
@@ -61,6 +62,18 @@ public class DockerManager {
     }
 
     public static void main(String[] args) throws Exception {
+//        testContainers();
+        testRegex();
+    }
+
+    private static void testRegex() throws Exception {
+        DockerManager manager = new DockerManager();
+        String str = " -e job_id=12345 -e host=195.1$8.125.212 -e functionality=service -e services=WebrtcReceiverService -e id=-123 --net host --privileged=true";
+        long id = manager.matchId(str);
+        System.out.println(id);
+    }
+
+    private static void testContainers() throws Exception {
         Map<String, List<Object>> map = new HashMap<>();
         map.put("producer", new ArrayList<>());
         map.put("consumer", new ArrayList<>());
@@ -79,15 +92,13 @@ public class DockerManager {
 
         Map<String, List<Map<String, String>>> terminateMap = new HashMap<>();
         terminateMap.put("common", new ArrayList<>());
-        for (int i = 0; i < getInstance().names.size(); i++) {
-            String name = getInstance().names.get(i);
-            String ip = getInstance().ips.get(i);
-            Map<String, String> wrapped = getInstance().stopContainer(name, ip);
-            terminateMap.get("common").add(wrapped);
-        }
 //        getInstance().socket.emit("stop_containers", terminateMap);
 
         System.out.println("finished");
+    }
+
+    public Map<Long, String> getContainerNames() {
+        return containerNames;
     }
 
     public void startContainer(Map<String, List<Map<String, String>>> map) {
@@ -112,6 +123,16 @@ public class DockerManager {
         args.put("arguments", envString);
         args.put("image", image);
         return args;
+    }
+
+    private long matchId(String str) {
+        Pattern pattern = Pattern.compile(" id=-?\\d+");
+        Matcher matcher = pattern.matcher(str);
+        if (matcher.find()) {
+            logger.info(matcher.group(0));
+            return Long.valueOf(matcher.group(0).substring(4));
+        }
+        return -1;
     }
 
     public Map<String, String> stopContainer(String name, String ip) {

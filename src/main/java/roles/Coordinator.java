@@ -54,10 +54,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     public void stopServices(long jobId) {
         jobs.Job workingJob = jobs.get(jobId);
         List<Task> tasks = workingJob.getTasks();
-//        ChannelUtil.getInstance().execute(() ->
-//                tasks.forEach(this::notifyParticipantStop));
-        ChannelUtil.getInstance().execute(() ->
-                tasks.forEach(this::stopContainers));
+        ChannelUtil.getInstance().execute(() -> tasks.forEach(task -> stopContainers(task, jobId)));
     }
 
     @Override
@@ -192,8 +189,13 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         }
     }
 
-    private void stopContainers(Task task) {
-
+    private void stopContainers(Task task, long jobId) {
+        logger.info("Stop containers: " + TextFormat.shortDebugString(task));
+        List<ServiceInfo> serviceInfoList = servicesByJob.get(jobId);
+        serviceInfoList.forEach(serviceInfo -> {
+            String containerName = DockerManager.getInstance().getContainerNames().get(serviceInfo.getId());
+            DockerManager.getInstance().stopContainer(containerName, serviceInfo.getAddress().getIp());
+        });
     }
 
     private void startContainers(List<Task> tasks, long jobId) {
@@ -203,6 +205,8 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         tasks.forEach(task -> {
             Participant participant = task.getSelf();
             Map<String, String> env = new HashMap<>();
+            env.put("id", Long.toString(servicesByJob.get(jobId).stream().filter(serviceInfo ->
+                    serviceInfo.getName(0).equals(task.getService().getName())).findFirst().get().getId()));
             env.put("functionality", "service");
             env.put("services", task.getService().getName());
             env.put("job_id", Long.toString(jobId));
