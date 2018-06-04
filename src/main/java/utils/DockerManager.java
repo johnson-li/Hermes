@@ -37,17 +37,17 @@ public class DockerManager {
                         logger.error(e.getMessage(), e);
                     }
                 } else {
-                    System.out.println(args[0]);
+                    System.out.println(args);
                 }
             });
             socket.on("stop.status", args -> {
-                System.out.println(args[0].getClass());
+                System.out.println(args);
                 System.out.println();
                 if (args[0] instanceof JSONObject) {
                     JSONObject json = (JSONObject) args[0];
                     logger.info(json.toString());
                 } else {
-                    System.out.println(args[0].getClass());
+                    System.out.println(args);
                 }
             });
             socket.connect();
@@ -71,7 +71,7 @@ public class DockerManager {
         data = getInstance().startContainerData("195.148.125.212", ImmutableMap.<String, String>builder().put("roles", "consumer").build(), "johnson163/hermes", 8080, "consumer");
         map.get("consumer").add(data);
         //producer
-        data = getInstance().startContainerData("195.148.125.213", ImmutableMap.<String, String>builder().put("roles", "producer").build(), "johnson163/hermes-arm", 8080, "producer");
+        data = getInstance().startContainerData("195.148.125.215", ImmutableMap.<String, String>builder().put("roles", "producer").build(), "johnson163/hermes-cuda", 8080, "producer");
         map.get("producer").add(data);
         getInstance().socket.emit("start_containers", map);
 
@@ -85,7 +85,7 @@ public class DockerManager {
             Map<String, String> wrapped = getInstance().stopContainer(name, ip);
             terminateMap.get("common").add(wrapped);
         }
-        getInstance().socket.emit("stop_containers", terminateMap);
+//        getInstance().socket.emit("stop_containers", terminateMap);
 
         System.out.println("finished");
     }

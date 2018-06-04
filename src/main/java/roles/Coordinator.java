@@ -207,8 +207,16 @@ public class Coordinator extends Role implements RegistrationService.Registratio
             env.put("services", String.join(",", task.getSelf().getServicesList().stream().map(proto.hermes.Service::getName).collect(Collectors.toList())));
             env.put("job_id", Long.toString(jobId));
             env.put("host", task.getSelf().getAddress().getIp()); // The service and the management has the same IP address to the outside
+            String image = "";
+            if (participant.getRoles(0).getRole().equals(Client.class.getSimpleName())) {
+                image = "johnson163/hermes-arm";
+            } else if (participant.getRoles(0).getRole().equals(Producer.class.getSimpleName())) {
+                image = "johnson163/hermes";
+            } else if (participant.getRoles(0).getRole().equals(Consumer.class.getSimpleName())) {
+                image = "johnson163/hermes-cuda";
+            }
             Map<String, String> data = DockerManager.getInstance().startContainerData(participant.getAddress().getIp(),
-                    env, "johnson163/hermes", Config.SERVICE_PORT, participant.getRoles(0).getRole());
+                    env, image, Config.SERVICE_PORT, participant.getRoles(0).getRole());
             String type = participant.getRoles(0).getRole().toLowerCase();
             if (!type.equals("consumer")) {
                 type = "producer";
