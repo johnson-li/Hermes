@@ -88,9 +88,10 @@ service ServiceRegistration {
 
 message ServiceInfo {
     int64 id = 1;
-    int64 jobId = 2;
-    repeated string name = 3;
-    NetAddress address = 4;
+    int64 participantId = 2;
+    int64 jobId = 3;
+    repeated string name = 4;
+    NetAddress address = 5;
 }
 
 message RegistrationResponse {

@@ -121,7 +121,7 @@ public class ServiceStarter {
                 registrationStub.registerService(ServiceInfo.newBuilder().addAllName(services.stream()
                         .map(Service::getName).collect(Collectors.toList())).setJobId(Config.JOB_ID).setId(Config.ID)
                         .setAddress(NetAddress.newBuilder().setIp(host).setPort(servicePort).build())
-                        .setId(identification.getId()).build(), new StreamObserver<RegistrationResponse>() {
+                        .setParticipantId(identification.getId()).build(), new StreamObserver<RegistrationResponse>() {
                     @Override
                     public void onNext(RegistrationResponse response) {
                         logger.info("Registration result: " + TextFormat.shortDebugString(response));

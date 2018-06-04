@@ -254,8 +254,8 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     @Override
     public void onRegister(ServiceInfo serviceInfo) {
         logger.info("On service registered: " + TextFormat.shortDebugString(serviceInfo));
-        servicesByParticipant.computeIfAbsent(serviceInfo.getId(), (id) -> new ArrayList<>());
-        servicesByParticipant.get(serviceInfo.getId()).add(serviceInfo);
+        servicesByParticipant.computeIfAbsent(serviceInfo.getParticipantId(), (id) -> new ArrayList<>());
+        servicesByParticipant.get(serviceInfo.getParticipantId()).add(serviceInfo);
         servicesByJob.get(serviceInfo.getJobId()).add(serviceInfo);
         if (servicesByJob.get(serviceInfo.getJobId()).size() >= 3) {
             if (servicesInitTag.getOrDefault(serviceInfo.getJobId(), new AtomicBoolean()).compareAndSet(true, false)) {
