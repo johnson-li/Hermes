@@ -21,6 +21,10 @@ public class VideoProcessingService implements Service {
 
     @Override
     public void start() {
+        String os = System.getProperty("os.name");
+        if (os.equals("Mac OS X")) {
+            return;
+        }
         List<String> commands = new ArrayList<>();
         commands.add("/hermes/darknet/darknet");
         commands.add("detect");

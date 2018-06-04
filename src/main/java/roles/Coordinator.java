@@ -15,10 +15,7 @@ import utils.ChannelUtil;
 import utils.DockerManager;
 
 import javax.net.ssl.SSLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
@@ -205,8 +202,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         tasks.forEach(task -> {
             Participant participant = task.getSelf();
             Map<String, String> env = new HashMap<>();
-            env.put("id", Long.toString(servicesByJob.get(jobId).stream().filter(serviceInfo ->
-                    serviceInfo.getName(0).equals(task.getService().getName())).findFirst().get().getId()));
+            env.put("id", Long.toString(new Random().nextLong()));
             env.put("functionality", "service");
             env.put("services", task.getService().getName());
             env.put("job_id", Long.toString(jobId));

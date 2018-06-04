@@ -16,6 +16,10 @@ public class WebrtcServer extends WebrtcServerGrpc.WebrtcServerImplBase implemen
 
     @Override
     public void init() {
+        String os = System.getProperty("os.name");
+        if (os.equals("Mac OS X")) {
+            return;
+        }
         String cmd = SERVER_PATH;
         reader = ProcessReader.read(cmd);
         process = reader.getProcess();

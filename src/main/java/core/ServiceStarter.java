@@ -119,7 +119,7 @@ public class ServiceStarter {
                 ServiceRegistrationGrpc.ServiceRegistrationStub registrationStub =
                         ServiceRegistrationGrpc.newStub(coordinatorChannel);
                 registrationStub.registerService(ServiceInfo.newBuilder().addAllName(services.stream()
-                        .map(Service::getName).collect(Collectors.toList())).setJobId(Config.JOB_ID)
+                        .map(Service::getName).collect(Collectors.toList())).setJobId(Config.JOB_ID).setId(Config.ID)
                         .setAddress(NetAddress.newBuilder().setIp(host).setPort(servicePort).build())
                         .setId(identification.getId()).build(), new StreamObserver<RegistrationResponse>() {
                     @Override

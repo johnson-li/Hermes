@@ -36,6 +36,10 @@ public class WebrtcSenderService implements Service {
 
     @Override
     public void start() {
+        String os = System.getProperty("os.name");
+        if (os.equals("Mac OS X")) {
+            return;
+        }
         // Disable webrtc client
         List<String> commands = new ArrayList<>();
         commands.add(CLIENT_PATH);
