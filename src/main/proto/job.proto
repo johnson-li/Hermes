@@ -102,3 +102,7 @@ message StopServiceResponse {
     Status status = 1;
 }
 
+service JobMonitor {
+    rpc Finish (Job) returns (Empty) {
+    }
+}

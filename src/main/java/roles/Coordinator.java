@@ -54,8 +54,10 @@ public class Coordinator extends Role implements RegistrationService.Registratio
     public void stopServices(long jobId) {
         jobs.Job workingJob = jobs.get(jobId);
         List<Task> tasks = workingJob.getTasks();
+//        ChannelUtil.getInstance().execute(() ->
+//                tasks.forEach(this::notifyParticipantStop));
         ChannelUtil.getInstance().execute(() ->
-                tasks.forEach(this::notifyParticipantStop));
+                tasks.forEach(this::stopContainers));
     }
 
     @Override
@@ -130,17 +132,17 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         return participants.values().stream().filter(participant -> participant.getRolesList().stream().anyMatch(r ->
                 r.getRole().toLowerCase().equals(role.getRole().toLowerCase()))).findFirst().orElse(null);
     }
-
-    private void notifyParticipantStop(Task task) {
-        try {
-            ManagedChannel channel = ChannelUtil.getInstance()
-                    .getClientChannel(task.getSelf().getAddress().getIp(), task.getSelf().getAddress().getPort());
-            TaskControllerGrpc.TaskControllerBlockingStub stub = TaskControllerGrpc.newBlockingStub(channel);
-            StopResult result = stub.stop(task);
-        } catch (SSLException e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
+//
+//    private void notifyParticipantStop(Task task) {
+//        try {
+//            ManagedChannel channel = ChannelUtil.getInstance()
+//                    .getClientChannel(task.getSelf().getAddress().getIp(), task.getSelf().getAddress().getPort());
+//            TaskControllerGrpc.TaskControllerBlockingStub stub = TaskControllerGrpc.newBlockingStub(channel);
+//            StopResult result = stub.stop(task);
+//        } catch (SSLException e) {
+//            logger.error(e.getMessage(), e);
+//        }
+//    }
 
     private void notifyParticipantInit(Task task, long jobId) {
         logger.info("Notify participant init: " + TextFormat.shortDebugString(task));
@@ -190,6 +192,10 @@ public class Coordinator extends Role implements RegistrationService.Registratio
         }
     }
 
+    private void stopContainers(Task task) {
+
+    }
+
     private void startContainers(List<Task> tasks, long jobId) {
         Map<String, List<Map<String, String>>> map = new HashMap<>();
         map.put("consumer", new ArrayList<>());
@@ -220,17 +226,17 @@ public class Coordinator extends Role implements RegistrationService.Registratio
 //        env.put("job_id", Long.toString(jobId));
 //        DockerManager.getInstance().startContainerData(participant.getAddress().getIp(), env, "johnson163/hermes", Config.SERVICE_PORT, participant.getRoles(0).getRole());
 //    }
-
-    private void notifyParticipant(Task task) {
-        try {
-            ManagedChannel channel = ChannelUtil.getInstance()
-                    .getClientChannel(task.getSelf().getAddress().getIp(), task.getSelf().getAddress().getPort());
-            TaskControllerGrpc.TaskControllerBlockingStub stub = TaskControllerGrpc.newBlockingStub(channel);
-            AssignResult result = stub.assign(task);
-        } catch (SSLException e) {
-            logger.error(e.getMessage(), e);
-        }
-    }
+//
+//    private void notifyParticipant(Task task) {
+//        try {
+//            ManagedChannel channel = ChannelUtil.getInstance()
+//                    .getClientChannel(task.getSelf().getAddress().getIp(), task.getSelf().getAddress().getPort());
+//            TaskControllerGrpc.TaskControllerBlockingStub stub = TaskControllerGrpc.newBlockingStub(channel);
+//            AssignResult result = stub.assign(task);
+//        } catch (SSLException e) {
+//            logger.error(e.getMessage(), e);
+//        }
+//    }
 
     @Override
     public void onHeartbeat(long participantId) {

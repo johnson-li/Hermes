@@ -12,6 +12,7 @@ import proto.hermes.*;
 import roles.Role;
 import services.HeartbeatClient;
 import services.IdentificationService;
+import services.JobMonitorService;
 import utils.ChannelUtil;
 
 import javax.net.ssl.SSLException;
@@ -55,6 +56,7 @@ public class Participant extends Context {
         ServerBuilder builder = ServerBuilder.forPort(port).useTransportSecurity(ssc.certificate(), ssc.privateKey());
         logger.info("Roles: " + String.join(", ", roles.stream().map(Role::getRoleName).collect(Collectors.toList())));
         builder.addService(new IdentificationService(this));
+        builder.addService(new JobMonitorService(this));
         for (Role role : roles) {
             role.getServices().stream().filter(service -> service.bindService() != null).forEach(service -> {
                 logger.info("Add service: " + service.getClass().getSimpleName());

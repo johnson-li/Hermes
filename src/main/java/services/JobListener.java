@@ -7,9 +7,12 @@ import roles.Client;
 
 public interface JobListener {
 
-    void onInit(Client client, InitJobResult result);
+    default void onInit(Client client, InitJobResult result) {
+    }
 
-    void onStart(Client client, StartJobResult result);
+    default void onStart(Client client, StartJobResult result) {
+    }
 
-    void onFinish(Client client, FinishJobResult result);
+    default void onFinish(Client client, FinishJobResult result) {
+    }
 }

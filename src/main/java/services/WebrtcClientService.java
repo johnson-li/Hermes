@@ -4,6 +4,7 @@ import com.google.protobuf.TextFormat;
 import core.Config;
 import io.grpc.ManagedChannel;
 import io.grpc.stub.StreamObserver;
+import jobs.VideoJob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import proto.hermes.*;
@@ -24,15 +25,15 @@ public class WebrtcClientService implements Service {
                 logger.info(TextFormat.shortDebugString(value));
                 if (value.getObject().equals("bicycle")) {
                     try {
-                        ManagedChannel coordinatorChannel =
-                                ChannelUtil.getInstance().getClientChannel(Config.COORDINATOR_IP, Config.COORDINATOR_PORT);
-                        JobManagerGrpc.JobManagerStub stub = JobManagerGrpc.newStub(coordinatorChannel);
-                        stub.finishJob(Job.newBuilder().setId(12345).build(), new SimpleStreamObserver<FinishJobResult>() {
-                            @Override
-                            public void onNext(FinishJobResult result) {
-                                logger.info("Job stop result: " + result.getStatus());
-                            }
-                        });
+                        ManagedChannel managementChannel =
+                                ChannelUtil.getInstance().getClientChannel(Config.MANAGEMENT_IP, Config.PORT);
+                        JobMonitorGrpc.JobMonitorStub stub = JobMonitorGrpc.newStub(managementChannel);
+                        stub.finish(Job.newBuilder().setId(12345).setName(jobs.Job.getJobName(VideoJob.class)).build(),
+                                new SimpleStreamObserver<Empty>() {
+                                    @Override
+                                    public void onNext(Empty value) {
+                                    }
+                                });
                     } catch (SSLException e) {
                         logger.error(e.getMessage(), e);
                     }
