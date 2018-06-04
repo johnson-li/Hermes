@@ -108,7 +108,7 @@ public class DockerManager {
         } else {
             args.put("ip", ip);
         }
-        envString += " --net host";
+        envString += " --net host --privileged=true";
         args.put("arguments", envString);
         args.put("image", image);
         return args;
