@@ -204,7 +204,7 @@ public class Coordinator extends Role implements RegistrationService.Registratio
             Participant participant = task.getSelf();
             Map<String, String> env = new HashMap<>();
             env.put("functionality", "service");
-            env.put("services", String.join(",", task.getSelf().getServicesList().stream().map(proto.hermes.Service::getName).collect(Collectors.toList())));
+            env.put("services", task.getService().getName());
             env.put("job_id", Long.toString(jobId));
             env.put("host", task.getSelf().getAddress().getIp()); // The service and the management has the same IP address to the outside
             String image = "";
