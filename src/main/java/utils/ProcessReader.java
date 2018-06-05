@@ -73,7 +73,7 @@ public class ProcessReader implements Runnable {
                     }
                     logger.info(output);
                 }
-                ChannelUtil.getInstance().execute(this, 100);
+                ChannelUtil.getInstance().execute(this, 20);
             } catch (IOException e) {
                 logger.error(e.getMessage(), e);
             }

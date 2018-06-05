@@ -129,7 +129,6 @@ public class DockerManager {
         Pattern pattern = Pattern.compile(" id=-?\\d+");
         Matcher matcher = pattern.matcher(str);
         if (matcher.find()) {
-            logger.info(matcher.group(0));
             return Long.valueOf(matcher.group(0).substring(4));
         }
         return -1;
