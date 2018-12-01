@@ -1,6 +1,6 @@
 FROM hypriot/rpi-java
 
-RUN apt-get update
+RUN /bin/bash -c 'apt-get update'
 RUN apt-get install -y pulseaudio consolekit iputils-ping
 
 WORKDIR /hermes
