@@ -21,3 +21,12 @@ Output: the car shows on screen if it is safe to turn left
 - Container based task management
 - 5G based video streaming & RPC communication
 - GPU accelerated video processing
+
+# How to run
+```
+script/run-experiment.sh
+```
+
+To run the system, you need to have at lease 3 machines, with docker installed. The script deploys containers to the machines and starts the system.
+
+
