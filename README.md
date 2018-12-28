@@ -1,6 +1,9 @@
 # Hermes
 In a complex road situation, one car’s insight is blocked somehow and it needs to utilize the insight of the other car to help it make decisions. For example, in the above situation, Car B wants to turn left, but it is not clear about the road situation on the left (the side of Car A). Fortunately, Car C has a clear view of this area. So Car B will use the camera from Car C to determine if it is safe to turn left immediately. Since the video processing requires some computation resources, the job may be completed on edge computers or on the car according to different situations.
 
+![System Architecture](docs/archi.png?raw=true "Title")
+
+
 # System Overview
 Input: the driver give the instruction of turning left
 

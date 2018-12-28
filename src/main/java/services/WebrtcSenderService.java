@@ -24,34 +24,34 @@ public class WebrtcSenderService implements Service {
     public WebrtcSenderService(long id) {
         this.id = id;
     }
-
-    public static void main(String[] args) {
-        WebrtcSenderService service = new WebrtcSenderService(0xffff);
-        service.start();
-    }
-
-    public void setRemotePeer(String remotePeer) {
-        this.remotePeer = remotePeer;
-    }
-
-    @Override
-    public void start() {
-        String os = System.getProperty("os.name");
-        if (os.equals("Mac OS X")) {
-            return;
-        }
-        // Disable webrtc client
-        List<String> commands = new ArrayList<>();
-        commands.add(CLIENT_PATH);
-        Map<String, String> env = new HashMap<>();
-        env.put("server", Config.COORDINATOR_IP);
-        env.put("name", String.valueOf(id));
-//        env.put("peer", remotePeer);
-        env.put("autocall", "true");
 //        env.put("sendonly", String.valueOf(sendOnly).toLowerCase());
         env.forEach((key, val) -> {
             commands.add("--" + key);
             commands.add(val);
+
+            public static void main(String[] args) {
+                WebrtcSenderService service = new WebrtcSenderService(0xffff);
+                service.start();
+            }
+
+            public void setRemotePeer(String remotePeer) {
+                this.remotePeer = remotePeer;
+            }
+
+            @Override
+            public void start() {
+                String os = System.getProperty("os.name");
+                if (os.equals("Mac OS X")) {
+                    return;
+                }
+                // Disable webrtc client
+                List<String> commands = new ArrayList<>();
+                commands.add(CLIENT_PATH);
+                Map<String, String> env = new HashMap<>();
+                env.put("server", Config.COORDINATOR_IP);
+                env.put("name", String.valueOf(id));
+//        env.put("peer", remotePeer);
+                env.put("autocall", "true");
         });
         reader = ProcessReader.read(commands);
         process = reader.getProcess();
